@@ -11,21 +11,25 @@ class User(AbstractUser):
 class Category(models.Model):
     category = models.CharField(max_length=64)
     def __str__(self):
-        return f"{self.id}: {self.category}"
+        return f"{self.category}"
 
 class Listing(models.Model):
-    name = models.CharField(max_length=128)
-    description = models.CharField(max_length=255)
-    condition = models.CharField(max_length=64)
-    starting_price = models.FloatField()
+    name = models.CharField(max_length=128, verbose_name="Product name:")
+    description = models.CharField(max_length=255, verbose_name="Describe the product:")
+    condition = models.CharField(max_length=64, verbose_name="Describe the condition of the product (whether it is old or new etc.):")
+    starting_price = models.FloatField(verbose_name="Starting price (US $):")
     # Sets the field to NULL if the category gets deleted
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings")
-    image = models.ImageField(blank=True, null=True)
-    shipping_options = models.CharField(max_length=64)
-    shipping_cost = models.FloatField()
-    location = models.CharField(max_length=64)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings", verbose_name="Product category:")
+    image = models.ImageField(blank=True, null=True, verbose_name="Upload image")
+    image_url = models.URLField(blank=True, null=True, max_length=200, verbose_name="Enter Image Url (i.e. from Google Photos or another image hosting website)")
+    shipping_options = models.CharField(max_length=64, verbose_name="Ships to:")
+    shipping_cost = models.FloatField(verbose_name="Shipping cost (US $):")
+    location = models.CharField(max_length=64, verbose_name="Location the product being sent from:")
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     time_listed = models.DateTimeField(auto_now_add=True)
+    start_bid_time = models.DateTimeField(default = datetime.datetime.now(), verbose_name="Set bidding start time:")
+    end_date_and_time = datetime.datetime.now() + datetime.timedelta(hours = 24)
+    end_bid_time = models.DateTimeField(default = end_date_and_time, verbose_name="Set bidding end time:")
     bid_active = models.BooleanField(default=False)
 
 
@@ -35,7 +39,7 @@ class Listing(models.Model):
         self.starting_bid = round(self.starting_bid, 2)
         self.shipping_cost = round(self.shipping_cost, 2)
         super(Listing, self).save(*args, **kwargs)
-    
+
     def __str__(self):
         return f"{self.id}: {self.name} listed at ${self.starting_bid} on date {self.time_listed}"
 
