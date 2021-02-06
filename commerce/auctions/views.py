@@ -7,43 +7,54 @@ from django.urls import reverse
 from .models import Bid, Category, Comment, Listing, User
 import django.forms
 from django.contrib.admin import widgets
-from functools import partial
-from bootstrap_datepicker_plus import DatePickerInput, DateTimePickerInput
+from bootstrap_datepicker_plus import DateTimePickerInput
 
 class NewListingForm(django.forms.ModelForm):
     class Meta:
         model = Listing
-        fields = ['name', 'description', 'condition', 'starting_price', 'category', 'image', 'image_url', 'shipping_options', 'shipping_cost', 'location', 'start_bid_time', 'end_bid_time']
+        fields = ['name', 'description', 'category', 'condition', 'start_bid_time', 'end_bid_time', 'image']
+        # Models do not take datetime formats whereas forms do. Therefore it is crucial to add the exact type of datetime input format to the form, so that it validates correctly. It is important for the input_format (server side validation) to match the widget DateTimePickerInput options in terms of whether you put / or - or : in between variables!!!! Otherwise the fields will not match and the form will not be validated
+        start_bid_time = django.forms.DateTimeField(input_formats=['%MM/%DD/%YYYY %HH:%mm:%ss'])
+        end_bid_time = django.forms.DateTimeField(input_formats=['%MM/%DD/%YYYY %HH:%mm:%ss'])
         widgets = {
-            'description': django.forms.Textarea(attrs={"rows": 8, "cols":100}),
-            'start_bid_time': DateTimePickerInput(options={
-                "format": "MM/DD/YYYY, HH:mm:ss",
-                "showClose": True,
-                "showClear": True,
-                "showTodayButton": True,
+            'description': django.forms.Textarea(attrs={"rows": 8, "cols": 100})
+            , 'start_bid_time': DateTimePickerInput(options={
+                "format": "MM/DD/YYYY HH:mm:ss"
             }),
             'end_bid_time': DateTimePickerInput(options={
-                "format": "MM/DD/YYYY, HH:mm:ss",
-                "showClose": True,
-                "showClear": True,
-                "showTodayButton": True,
+                "format": "MM/DD/YYYY HH:mm:ss"
             })
         }
-
     # Attributed to this tutorial on how to order model fields in Django: https://stackoverflow.com/questions/42811866/how-to-sort-a-choicefield-in-a-modelform
-    def __init__(self):
-        # The super() function returns a temporary object of the superclass
-        super(NewListingForm, self).__init__()
+    def __init__(self, *args, **kwargs):
+        # The super() function returns a temporary object of the superclass kind (here it is a NewListingForm)
+        super(NewListingForm, self).__init__(*args, **kwargs)
         self.fields['category'].queryset = self.fields['category'].queryset.order_by('category')
 
 def index(request):
     return render(request, "auctions/index.html")
 
 def create_listing(request):
-    form = NewListingForm()
-    return render(request, "auctions/create_listing.html", {
-        "form": form
-    })
+    if request.method == "POST":
+        form = NewListingForm(request.POST)
+        # Server-side check validating the form
+        if form.is_valid():
+            message = "Finally works"
+            return render(request, "auctions/create_listing.html", {
+            "form": form, "message": message
+            })
+        else:
+            form = NewListingForm()
+            message = "Doesn't work 1"
+            return render(request, "auctions/create_listing.html", {
+                "form": form, "message": message
+            })
+    else:
+        form = NewListingForm()
+        message = "Doesn't work 2"
+        return render(request, "auctions/create_listing.html", {
+            "form": form, "message": message
+        })
 
 def login_view(request):
     if request.method == "POST":

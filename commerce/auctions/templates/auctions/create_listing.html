@@ -5,7 +5,21 @@
 {% block body %}
     <div class="container justify-content-center"><h3>Create a New Listing</h3></div>
     <br>
-    {{ form.non_field_errors }}
+    <h3>{{ message }}</h3>
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
     <br>
     <form action={% url 'create' %} method="POST">
         {% csrf_token %}
@@ -29,14 +43,6 @@
             </div>
             <div class="row form-group">
                 <div class="col-2">
-                    {{ form.condition.label }}
-                </div>
-                <div class="col-10">
-                    {% render_field form.condition placeholder="Old or new?" style="width: 25vw;" %}
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-2">
                     {{ form.category.label }}
                 </div>
                 <div class="col-10">
@@ -45,50 +51,10 @@
             </div>
             <div class="row form-group">
                 <div class="col-2">
-                    {{ form.starting_price.label }}
+                    {{ form.condition.label }}
                 </div>
                 <div class="col-10">
-                    {% render_field form.starting_price step=".01" placeholder="0.00" value=value|floatformat:2 %}
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-2">
-                    {{ form.shipping_options.label }}
-                </div>
-                <div class="col-10">
-                    {% render_field form.shipping_options placeholder="Enter a country/continent/worldwide" style="width: 25vw;" %}
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-2">
-                    {{ form.shipping_cost.label }}
-                </div>
-                <div class="col-10">
-                    {% render_field form.shipping_cost step=".01" placeholder="0.00" value=value|floatformat:2 %}
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-2">
-                    {{ form.location.label }}
-                </div>
-                <div class="col-10">
-                    {% render_field form.location step=".01" placeholder="Where is the product being shipped from?" style="width: 25vw;" %}
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-2">
-                    {{ form.start_bid_time.label }}
-                </div>
-                <div class="col-10">
-                    {% render_field form.start_bid_time %}
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-2">
-                    {{ form.end_bid_time.label }}
-                </div>
-                <div class="col-10">
-                    {% render_field form.end_bid_time %}
+                    {% render_field form.condition placeholder="Old or new?" style="width: 25vw;" %}
                 </div>
             </div>
             <div id="images">
@@ -100,18 +66,21 @@
                         {% render_field form.image placeholder="Upload Image" style="width: 25vw;" %}
                     </div>
                 </div>
-                <div class="row form-group">
-                    <div class="col">
-                        <h4>OR</h4>
-                    </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.start_bid_time.label }}
                 </div>
-                <div class="row form-group image-form">
-                    <div class="col-2">
-                        {{ form.image_url.label }}
-                    </div>
-                    <div class="col-10">
-                        {% render_field form.image_url placeholder="Enter Image Url" style="width: 25vw;" %}
-                    </div>
+                <div class="col-10">
+                    {{ form.start_bid_time }}
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.end_bid_time.label }}
+                </div>
+                <div class="col-10">
+                    {{ form.end_bid_time }}
                 </div>
             </div>
             <div class="row form-group">

@@ -25,11 +25,10 @@ class Listing(models.Model):
     shipping_options = models.CharField(max_length=64, verbose_name="Ships to:")
     shipping_cost = models.FloatField(verbose_name="Shipping cost (US $):")
     location = models.CharField(max_length=64, verbose_name="Location the product being sent from:")
-    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     time_listed = models.DateTimeField(auto_now_add=True)
-    start_bid_time = models.DateTimeField(default = datetime.datetime.now(), verbose_name="Set bidding start time:")
-    end_date_and_time = datetime.datetime.now() + datetime.timedelta(hours = 24)
-    end_bid_time = models.DateTimeField(default = end_date_and_time, verbose_name="Set bidding end time:")
+    start_bid_time = models.DateTimeField(blank=False, null=False, verbose_name="Set bidding start time:")
+    end_bid_time = models.DateTimeField(blank=False, null=False, verbose_name="Set bidding end time:")
     bid_active = models.BooleanField(default=False)
 
 
