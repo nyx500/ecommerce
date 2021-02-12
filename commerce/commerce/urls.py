@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import include, path
 # The following functions connect the urls to the media/ directory in the main project directory
 from django.conf import settings
-from django.urls import path, include
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 

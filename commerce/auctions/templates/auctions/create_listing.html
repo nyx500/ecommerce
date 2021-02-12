@@ -6,6 +6,10 @@
     <div class="container justify-content-center"><h3>Create a New Listing</h3></div>
     <br>
     <h3>{{ message }}</h3>
+    <h3>{{ message1 }}</h3>
+    <h3>{{ message2 }}</h3>
+    <h3>{{ message3 }}</h3>
+    <h3>{{ message4 }}</h3>
     {% if form.errors %}
         {% for field in form %}
             {% for error in field.errors %}
@@ -21,7 +25,7 @@
         {% endfor %}
     {% endif %}
     <br>
-    <form action={% url 'create' %} method="POST">
+    <form action={% url 'create' %} method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {% load widget_tweaks %}
         <div class="container justify-content-center">
@@ -57,6 +61,38 @@
                     {% render_field form.condition placeholder="Old or new?" style="width: 25vw;" %}
                 </div>
             </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.starting_price.label }}
+                </div>
+                <div class="col-10">
+                    {% render_field form.starting_price step=".01" placeholder="0.00" value=value|floatformat:2 %}
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.shipping_options.label }}
+                </div>
+                <div class="col-10">
+                    {% render_field form.shipping_options placeholder="Enter a country/continent/worldwide" style="width: 25vw;" %}
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.shipping_cost.label }}
+                </div>
+                <div class="col-10">
+                    {% render_field form.shipping_cost step=".01" placeholder="0.00" value=value|floatformat:2 %}
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.location.label }}
+                </div>
+                <div class="col-10">
+                    {% render_field form.location step=".01" placeholder="Where is the product being shipped from?" style="width: 25vw;" %}
+                </div>
+            </div>
             <div id="images">
                 <div class="row form-group image-form">
                     <div class="col-2">
@@ -66,13 +102,36 @@
                         {% render_field form.image placeholder="Upload Image" style="width: 25vw;" %}
                     </div>
                 </div>
+                <div class="row form-group image-form">
+                    <div class="col-2">
+                        {{ form.image_url.label }}
+                    </div>
+                    <div class="col-10">
+                        {% render_field form.image_url placeholder="Enter Image Url" style="width: 25vw;" %}
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    <label for="timezone">Time zone:</label>
+                </div>
+                <div class="col-10">
+                    <select name="timezone">
+                        {% for tz in timezones %}
+                        <option value="{{ tz }}"{% if tz == TIME_ZONE %} selected{% endif %}>{{ tz }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
             <div class="row form-group">
                 <div class="col-2">
                     {{ form.start_bid_time.label }}
                 </div>
                 <div class="col-10">
-                    {{ form.start_bid_time }}
+                    {% load tz %}
+                    {% localtime on %}
+                        {{ form.start_bid_time }}
+                    {% endlocaltime %}
                 </div>
             </div>
             <div class="row form-group">
@@ -81,6 +140,14 @@
                 </div>
                 <div class="col-10">
                     {{ form.end_bid_time }}
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-2">
+                    {{ form.time_zone.label }}
+                </div>
+                <div class="col-10">
+                    {{ form.time_zone }}
                 </div>
             </div>
             <div class="row form-group">
