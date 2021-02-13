@@ -51,8 +51,8 @@ def create_listing(request):
         form = NewListingForm(request.POST, request.FILES)
         # Server-side check validating the form
         if form.is_valid():
-            timezone = request.POST["timezone"]
-            utc_offset = datetime.datetime.now(pytz.timezone(timezone)).utcoffset()
+            timezone = form.cleaned_data["time_zone"]
+            utc_offset = datetime.datetime.now(timezone).utcoffset()
             start_time_in_utc_time = (form.cleaned_data["start_bid_time"] - utc_offset).replace(tzinfo=datetime.timezone.utc)
             end_time_in_utc_time = (form.cleaned_data["end_bid_time"] - utc_offset).replace(tzinfo=datetime.timezone.utc)
             utc_timezone = pytz.timezone("UTC")
