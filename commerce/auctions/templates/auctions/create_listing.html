@@ -63,10 +63,10 @@
             </div>
             <div class="row form-group">
                 <div class="col-2">
-                    {{ form.starting_price.label }}
+                    {{ form.starting_bid.label }}
                 </div>
                 <div class="col-10">
-                    {% render_field form.starting_price step=".01" placeholder="0.00" value=value|floatformat:2 %}
+                    {% render_field form.starting_bid style="padding: 1vh;margin-right: 1vh;" %}
                 </div>
             </div>
             <div class="row form-group">
@@ -82,7 +82,7 @@
                     {{ form.shipping_cost.label }}
                 </div>
                 <div class="col-10">
-                    {% render_field form.shipping_cost step=".01" placeholder="0.00" value=value|floatformat:2 %}
+                    {% render_field form.shipping_cost style="padding: 1vh;margin-right: 1vh;" %}
                 </div>
             </div>
             <div class="row form-group">

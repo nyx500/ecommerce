@@ -40,6 +40,12 @@ DATE_INPUT_FORMATS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'money',
+    'moneyfield',
+    'currencies',
+    'django_prices',
+    'django_countries',
+    'djmoney',
     'auctions',
     'bootstrap4',
     'bootstrap_datepicker_plus',

@@ -6,6 +6,10 @@ import os
 from django.utils import timezone
 import pytz
 from timezone_field import TimeZoneField
+from django_countries.fields import CountryField
+from django_countries import countries
+from djmoney.models.fields import MoneyField
+
 
 class User(AbstractUser):
     time_created = models.DateTimeField(auto_now_add=True)
@@ -24,9 +28,20 @@ class Listing(models.Model):
 
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", blank=True, null=True, default=None)
     name = models.CharField(max_length=128, verbose_name="Product name:")
-    description = models.CharField(max_length=255, verbose_name="Describe the product:")
-    condition = models.CharField(max_length=64, verbose_name="Describe the condition of the product (whether it is old or new etc.):")
-    starting_price = models.FloatField(verbose_name="Starting price (US $):")
+    description = models.CharField(max_length=255, verbose_name="Product description:")
+
+    CONDITION_CHOICES = [
+        ("", ("---------")),
+        ("antique", ("Antique")),
+        ("poor", ("Used - in poor condition")),
+        ("okay", ("Used - in okay condition")),
+        ("good", ("Used - in good condition")),
+        ("excellent", ("Used - in excellent condition, like new")),
+        ("new", ("New"))
+    ]
+
+    condition = models.CharField(max_length=64, verbose_name="Product condition:", choices = CONDITION_CHOICES)
+    starting_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Starting bid:")
     # Sets the field to NULL if the category gets deleted
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings", verbose_name="Product category:")
 
@@ -36,9 +51,18 @@ class Listing(models.Model):
 
     image = models.ImageField(upload_to=image_path, verbose_name="Upload image",blank=True, null=True)
 
-    shipping_options = models.CharField(max_length=64, verbose_name="Ships to:")
-    shipping_cost = models.FloatField(verbose_name="Shipping cost (US $):")
-    location = models.CharField(max_length=64, verbose_name="Location the product being sent from:")
+    # Creates a list of countries where the product can be sent to
+    list_countries = list(countries)
+    for index, country in enumerate(list_countries):
+        list_countries[index] = country
+    list_countries.insert(0, ("WW", "Worldwide"))
+    list_countries.insert(0, ("", '---------') )
+    COUNTRY_CHOICES = list_countries
+
+    shipping_options = models.CharField(max_length=64, verbose_name="Can ship to:", choices=COUNTRY_CHOICES)
+    shipping_cost = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Shipping cost:")
+
+    location = CountryField(verbose_name="Country the product is being sent from:")
     time_listed = models.DateTimeField(auto_now_add=True)
     start_bid_time = models.DateTimeField(verbose_name="Enter start date and time:")
     end_bid_time = models.DateTimeField(verbose_name="Enter end date and time:"
@@ -49,12 +73,11 @@ class Listing(models.Model):
     # Have to create a new function to round currency to the last two decimal points (this is because SQLite does not support DecimalField, therefore the float has to be rounded in a custom function)
     #https://stackoverflow.com/questions/23739030/restrict-django-floatfield-to-2-decimal-places/46081058#46081058
     def save(self, *args, **kwargs):
-        self.starting_bid = round(self.starting_price, 2)
         self.shipping_cost = round(self.shipping_cost, 2)
         super(Listing, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.id}: {self.name} listed at ${self.starting_price} on date {self.time_listed}"
+        return f"{self.id}: {self.name} listed at {self.starting_bid} on date {self.time_listed}"
 
 
 class Bid(models.Model):
