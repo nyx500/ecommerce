@@ -145,4 +145,8 @@
             </div>
         </div>
     </form>
+    Start time: {{ start_time }} {{ start_time.tzinfo }}
+    End time: {{ end_time }} {{ end_time.tzinfo }}
+    Current time: {{ current_time }} {{ current_time.tzinfo }}
+    UTC offset: {{ utc_offset }}
 {% endblock %}

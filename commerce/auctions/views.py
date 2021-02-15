@@ -6,9 +6,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from .models import Bid, Category, Comment, Listing, User
 from django import forms
+from django.utils import timezone
 import datetime
 import pytz
-import django.utils
 import bootstrap4
 from bootstrap_datepicker_plus import DateTimePickerInput
 from django_countries import countries
@@ -16,6 +16,11 @@ from moneyfield import MoneyField
 
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime'
+
+class BidForm(forms.ModelForm):
+    class Meta:
+        model = Bid
+        fields = ['amount_bid']
 
 class NewListingForm(forms.ModelForm):
     class Meta:
@@ -46,46 +51,45 @@ class NewListingForm(forms.ModelForm):
         self.fields['category'].queryset = self.fields['category'].queryset.order_by('category')
 
 def index(request):
-    bear = Listing.objects.get(id=3)
-    # Gets timezone from object in Listing table
-    timezone = bear.time_zone
-    # Gets UTC timezone object using the pytz module
-    utc_timezone = pytz.timezone("UTC")
-    # Gets the current time in UTC as an aware object
-    current_time_in_utc = utc_timezone.localize(datetime.datetime.utcnow())
-    # Calculate difference between Listing user's timezone and UTC as a timedelta object
-    utc_offset = datetime.datetime.now(timezone).utcoffset()
-    # Gets object's start time
-    start = bear.start_bid_time
-    # Gets object's end time
-    end = bear.end_bid_time
-    # Adds or subtracts the utc_offset between the Listing user's timezone and UTC to the current time in UTC, so that the user's start and end times can be compared in terms of their own timezone
-    utc_compare = current_time_in_utc - utc_offset
-    if start <= utc_compare and end >= utc_compare:
-        answer = True
-        bear.bid_active = True
-        bear.save()
+    if request.method == "POST":
+        form = BidForm(request.POST)
     else:
-        answer = False
-        bear.save()
-    return render(request, "auctions/index.html", {"timezone": timezone,
-    "utc_timezone": utc_timezone, "current_time_in_utc": current_time_in_utc,
-    "utc_offset": utc_offset, "start": start, "end": end, "utc_compare": utc_compare, "answer": answer
-    })
+        UTC = pytz.utc
+        current_time = datetime.datetime.now(UTC)
+        for listing in Listing.objects.all():
+            # Turns current UTC time into the current time in the timezone of the user who created that listing by adding the utcoffset between UTC and that user's timezone to the current UTC time
+            if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
+                listing.bid_active = True
+            else:
+                listing.bid_active = False
+            listing.save()
+        return render(request, "auctions/index.html", {
+            "listings": Listing.objects.filter(bid_active=True),
+            "form": BidForm()
+        })
 
 def create_listing(request):
     if request.method == "POST":
         form = NewListingForm(request.POST, request.FILES)
         # Server-side check validating the form
         if form.is_valid():
-            timezone = form.cleaned_data["time_zone"]
-            utc_offset = datetime.datetime.now(timezone).utcoffset()
-            start_time_in_utc_time = (form.cleaned_data["start_bid_time"] - utc_offset).replace(tzinfo=datetime.timezone.utc)
-            end_time_in_utc_time = (form.cleaned_data["end_bid_time"] - utc_offset).replace(tzinfo=datetime.timezone.utc)
-            utc_timezone = pytz.timezone("UTC")
-            current_time_in_utc = utc_timezone.localize(datetime.datetime.utcnow())
+            # Changed django.utils file code, so that the user data returns a naive datetime object that I am manipulating manually to store the data in the user's local time, for easier comparison purposes
+            time_zone = form.cleaned_data["time_zone"]
+
+            # Calculates difference between the user's local time and the time in UTC as a timedelta object
+            utc_offset = datetime.datetime.now(time_zone).utcoffset()
+
+            # Makes naive times aware
+            start_time = form.cleaned_data["start_bid_time"] - utc_offset
+            end_time = form.cleaned_data["end_bid_time"] - utc_offset
+
+            UTC = pytz.utc
+
+            current_time = datetime.datetime.now(UTC)
+
             obj = Listing()
-            if start_time_in_utc_time <= current_time_in_utc and current_time_in_utc <= end_time_in_utc_time:
+            # Checks if user's current time is in between the start and end datetimes which they entered and sets the bid to active if this is the case
+            if start_time <= current_time and current_time <= end_time:
                 obj.bid_active = True
             obj.seller = request.user
             obj.name = form.cleaned_data["name"]
@@ -93,16 +97,16 @@ def create_listing(request):
             obj.category = form.cleaned_data["category"]
             obj.condition= form.cleaned_data["condition"]
             obj.image = form.cleaned_data['image']
-            obj.start_bid_time= start_time_in_utc_time
-            obj.time_zone = timezone
-            obj.end_bid_time= end_time_in_utc_time
+            obj.start_bid_time= start_time
+            obj.time_zone = time_zone
+            obj.end_bid_time= end_time
             obj.starting_bid= form.cleaned_data["starting_bid"]
             obj.shipping_options= form.cleaned_data["shipping_options"]
             obj.shipping_cost= form.cleaned_data["shipping_cost"]
             obj.location= form.cleaned_data["location"]
             obj.save()
             return render(request, "auctions/create_listing.html", {
-            "form": NewListingForm(), "message1": "Works: check admin class"
+            "form": NewListingForm(), "message1": "Works: check admin class", "start_time": start_time, "end_time": end_time, "current_time": current_time, "utc_offset": utc_offset
             })
         else:
             form = NewListingForm()

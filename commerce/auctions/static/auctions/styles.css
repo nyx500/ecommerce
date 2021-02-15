@@ -5,3 +5,17 @@
     width: 80%;
     margin-left: 0;
 }
+
+.listing {
+    width: 100%;
+    border: 1px solid gray;
+    padding: 2vh;
+    margin: 2vw;
+}
+
+.moneyform_field {
+    margin: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}

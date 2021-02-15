@@ -32,12 +32,12 @@ class Listing(models.Model):
 
     CONDITION_CHOICES = [
         ("", ("---------")),
-        ("antique", ("Antique")),
-        ("poor", ("Used - in poor condition")),
-        ("okay", ("Used - in okay condition")),
-        ("good", ("Used - in good condition")),
-        ("excellent", ("Used - in excellent condition, like new")),
-        ("new", ("New"))
+        ("Antique", ("Antique")),
+        ("Poor", ("Used - in poor condition")),
+        ("Okay", ("Used - in okay condition")),
+        ("Good", ("Used - in good condition")),
+        ("Excellent", ("Used - in excellent condition, like new")),
+        ("New", ("New"))
     ]
 
     condition = models.CharField(max_length=64, verbose_name="Product condition:", choices = CONDITION_CHOICES)
@@ -55,13 +55,18 @@ class Listing(models.Model):
     list_countries = list(countries)
     for index, country in enumerate(list_countries):
         list_countries[index] = country
-    list_countries.insert(0, ("WW", "Worldwide"))
+    list_countries.insert(0, ("Worldwide", "Worldwide"))
+    list_countries.insert(0, ("Africa", "Africa"))
+    list_countries.insert(0, ("Asia", "Asia"))
+    list_countries.insert(0, ("Australia and New Zealand", "Australia & NZ"))
+    list_countries.insert(0, ("North America", "North America"))
+    list_countries.insert(0, ("South America", "South America"))
+    list_countries.insert(0, ("Europe", "Europe"))
     list_countries.insert(0, ("", '---------') )
     COUNTRY_CHOICES = list_countries
 
     shipping_options = models.CharField(max_length=64, verbose_name="Can ship to:", choices=COUNTRY_CHOICES)
-    shipping_cost = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Shipping cost:")
-
+    shipping_cost = MoneyField(max_digits=19, decimal_places=2, default=00.00, verbose_name="Shipping cost:")
     location = CountryField(verbose_name="Country the product is being sent from:")
     time_listed = models.DateTimeField(auto_now_add=True)
     start_bid_time = models.DateTimeField(verbose_name="Enter start date and time:")
@@ -83,10 +88,15 @@ class Listing(models.Model):
 class Bid(models.Model):
     listing_id = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
-    amount_bid = models.FloatField()
+    amount_bid = models.FloatField(default=00.00, verbose_name="Place a bid")
     time_bid = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.amount_bid = round(self.amount_bid, 2)
+        super(Listing, self).save(*args, **kwargs)
+
     def __str___(self):
-        return f"{self.id}: Bid on {self.listing_id}.name by {self.bidder.username} at {time_bid}"
+        return f"{self.id}: Bid on {self.listing_id}.name by {self.bidder.username} at {self.time_bid}"
 
 class Comment(models.Model):
     product = models.ForeignKey(Listing, on_delete=models.CASCADE)

@@ -2,19 +2,39 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-    Timezone: {{ timezone }}
-    <br>
-    UTC timezone: {{ utc_timezone }}
-    <br>
-    Current time in UTC: {{ current_time_in_utc }}
-    <br>
-    Difference ("offset") between UTC and user's timezone:{{ utc_offset }}
-    <br>
-    Bid start time: {{ start }} {{ start.tzinfo }}
-    <br>
-    Bid end time: {{ end }} {{ end.tzinfo }}
-    <br>
-    Current time in user's time zone: {{ utc_compare }}
-    <br>
-    Active: {{ answer }}
+    {% for listing in listings %}
+        <div class="container listing justify-content-center">
+            <div class="row">
+                <div class="col-4">
+                    {% if listing.image.url == None %}
+                        <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
+                    {% else %}
+                        <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
+                    {% endif %}
+                </div>
+                <div class="col-8">
+                    <h3>Listing: {{ listing.name }}</h3>
+                    <p>{{ listing.description }}</p>
+                    <p>Condition: {{ listing.condition }}</p>
+                    <p>Ships to: {{ listing.shipping_options }}</p>
+                    <p>Shipping cost: {{ listing.shipping_cost }}</p>
+                    <p>Shipped from: {{ listing.location }}</p>
+                    <h4>Starting bid: {{ listing.starting_bid }}</h4>
+                    {% if request.user.is_authenticated %}
+                        <form action="{ url "index" }" method="POST">
+                            <div class="moneyform_field">
+                                {% load widget_tweaks %}
+                                {{ form.amount_bid.label}} in {{ listing.starting_bid.currency }}: 
+                                {% render_field form.amount_bid step="0.01" placeholder="00.00" value=value|floatformat:2 %}
+                            </div>
+                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                            <br>
+                            <input type="submit" class="btn btn-primary">
+                        </form>
+                    {% endif %}
+                    <p>Bidding ends at {{ listing.end_bid_time }} in <b>{{ listing.end_bid_time.tzinfo }}</b> time</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

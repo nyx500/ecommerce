@@ -40,6 +40,7 @@ DATE_INPUT_FORMATS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'geoip2',
     'money',
     'moneyfield',
     'currencies',
