@@ -46,7 +46,32 @@ class NewListingForm(forms.ModelForm):
         self.fields['category'].queryset = self.fields['category'].queryset.order_by('category')
 
 def index(request):
-    return render(request, "auctions/index.html")
+    bear = Listing.objects.get(id=3)
+    # Gets timezone from object in Listing table
+    timezone = bear.time_zone
+    # Gets UTC timezone object using the pytz module
+    utc_timezone = pytz.timezone("UTC")
+    # Gets the current time in UTC as an aware object
+    current_time_in_utc = utc_timezone.localize(datetime.datetime.utcnow())
+    # Calculate difference between Listing user's timezone and UTC as a timedelta object
+    utc_offset = datetime.datetime.now(timezone).utcoffset()
+    # Gets object's start time
+    start = bear.start_bid_time
+    # Gets object's end time
+    end = bear.end_bid_time
+    # Adds or subtracts the utc_offset between the Listing user's timezone and UTC to the current time in UTC, so that the user's start and end times can be compared in terms of their own timezone
+    utc_compare = current_time_in_utc - utc_offset
+    if start <= utc_compare and end >= utc_compare:
+        answer = True
+        bear.bid_active = True
+        bear.save()
+    else:
+        answer = False
+        bear.save()
+    return render(request, "auctions/index.html", {"timezone": timezone,
+    "utc_timezone": utc_timezone, "current_time_in_utc": current_time_in_utc,
+    "utc_offset": utc_offset, "start": start, "end": end, "utc_compare": utc_compare, "answer": answer
+    })
 
 def create_listing(request):
     if request.method == "POST":
@@ -60,7 +85,7 @@ def create_listing(request):
             utc_timezone = pytz.timezone("UTC")
             current_time_in_utc = utc_timezone.localize(datetime.datetime.utcnow())
             obj = Listing()
-            if start_time_in_utc_time < current_time_in_utc and current_time_in_utc < end_time_in_utc_time:
+            if start_time_in_utc_time <= current_time_in_utc and current_time_in_utc <= end_time_in_utc_time:
                 obj.bid_active = True
             obj.seller = request.user
             obj.name = form.cleaned_data["name"]

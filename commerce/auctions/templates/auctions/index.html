@@ -2,4 +2,19 @@
 
 {% block body %}
     <h2>Active Listings</h2>
+    Timezone: {{ timezone }}
+    <br>
+    UTC timezone: {{ utc_timezone }}
+    <br>
+    Current time in UTC: {{ current_time_in_utc }}
+    <br>
+    Difference ("offset") between UTC and user's timezone:{{ utc_offset }}
+    <br>
+    Bid start time: {{ start }} {{ start.tzinfo }}
+    <br>
+    Bid end time: {{ end }} {{ end.tzinfo }}
+    <br>
+    Current time in user's time zone: {{ utc_compare }}
+    <br>
+    Active: {{ answer }}
 {% endblock %}
