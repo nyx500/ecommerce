@@ -42,6 +42,7 @@ class Listing(models.Model):
 
     condition = models.CharField(max_length=64, verbose_name="Product condition:", choices = CONDITION_CHOICES)
     starting_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Starting bid:")
+    highest_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Highest bid:", blank=True, null=True)
     # Sets the field to NULL if the category gets deleted
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings", verbose_name="Product category:")
 
@@ -86,17 +87,13 @@ class Listing(models.Model):
 
 
 class Bid(models.Model):
-    listing_id = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
-    amount_bid = MoneyField(max_digits=19, decimal_places=2, default=00.00, verbose_name="Place a bid")
+    amount_bid = MoneyField(max_digits=19, decimal_places=2, default=00.00, default_currency="USD")
     time_bid = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        self.amount_bid = round(self.amount_bid, 2)
-        super(Listing, self).save(*args, **kwargs)
-
-    def __str___(self):
-        return f"{self.id}: Bid on {self.listing_id}.name by {self.bidder.username} at {self.time_bid}"
+    def __str__(self):
+        return f"Bid {self.id} of {self.amount_bid} on {self.listing.name} by user {self.bidder.username}"
 
 class Comment(models.Model):
     product = models.ForeignKey(Listing, on_delete=models.CASCADE)

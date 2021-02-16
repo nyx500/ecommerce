@@ -17,6 +17,7 @@ import djmoney_rates
 from djmoney_rates.utils import convert_money
 from money.money import Money
 from money.currency import Currency
+from decimal import Decimal
 
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime'
@@ -25,6 +26,7 @@ class BidForm(forms.ModelForm):
     class Meta:
         model = Bid
         fields = ['amount_bid']
+
 
 class NewListingForm(forms.ModelForm):
     class Meta:
@@ -66,14 +68,42 @@ def index(request):
             og_bid = float(Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0])
             if float(amount.amount) < og_bid:
                 message = f"Please match the starting bid of {og_amount} in {og_currency}"
-            else:
-                message = "Thank you for your bid"
-            return render(request, "auctions/index.html", {
-                "message": message
-            })
+                return render(request, "auctions/index.html", {
+                            "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": message
+                        })
+            else:  
+                listing = Listing.objects.get(id=listing_id)
+                listing.starting_bid.amount = listing.starting_bid.amount * Decimal(1.25)
+                listing.save()
+                bids = Listing.objects.get(id=listing_id).bids.all()
+                if bids is None:
+                    b = Bid(bidder=request.user, listing=Listing.objects.get(id=listing_id), amount_bid=amount)
+                    b.save()
+                    listing = Listing.objects.get(id=listing_id)
+                    listing.highest_bid = amount
+                    listing.save()
+                    return render(request, "auctions/index.html", {
+                        "listings": Listing.objects.filter(bid_active=True), "form": BidForm(),
+                        "message":"Thank you for your bid!"
+                    })
+                else:
+                    for bid in bids:
+                        if bid.amount_bid.amount > amount.amount:
+                            obj = Bid()
+                            obj.listing = listing
+                            obj.bidder = bid.bidder
+                            obj.amount_bid = listing.starting_bid
+                            obj.save()
+                            return render(request, "auctions/index.html", {
+                                "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": f"Unfortunately, {bid.bidder} has already bid higher than you with a {bid.amount_bid} amount!"
+                            })  
+                    return render(request, "auctions/index.html", {
+                        "listings": Listing.objects.filter(bid_active=True), "form": BidForm(),
+                        "message":"Thank you for your bid!"
+                    })
         else:
             return render(request, "auctions/index.html", {
-                "message": "Invalid"
+                "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": "Invalid form"
             })
     else:
         UTC = pytz.utc
@@ -84,10 +114,11 @@ def index(request):
                 listing.bid_active = True
             else:
                 listing.bid_active = False
+            bids = listing.bids.all().order_by('amount_bid')
+            listing.highest_bid = bids[0].amount_bid
             listing.save()
         return render(request, "auctions/index.html", {
-            "listings": Listing.objects.filter(bid_active=True),
-            "form": BidForm()
+            "listings": Listing.objects.filter(bid_active=True), "form": BidForm()
         })
 
 def create_listing(request):

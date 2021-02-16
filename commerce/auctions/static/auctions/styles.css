@@ -13,9 +13,11 @@
     margin: 2vw;
 }
 
-.moneyform_field {
-    margin: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
+.bid {
+    background-color: rgb(231, 230, 230);
+    border-radius: 25px;
+    margin-left: -5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    font-weight: bold;
 }

@@ -2,43 +2,47 @@
 
 {% block body %}
     <h1>{{ message }}</h1>
-    <h1>{{ works }}</h1>
+    <h1>{{ winner }}</h1>
     <h2>Active Listings</h2>
     {% for listing in listings %}
         <div class="container listing justify-content-center">
             <div class="row">
-                <div class="col-4">
+                <div class="col-3">
                     {% if listing.image.url == None %}
                         <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
                     {% else %}
                         <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
                     {% endif %}
                 </div>
-                <div class="col-8">
+                <div class="col-6">
                     <h3>Listing: {{ listing.name }}</h3>
                     <p>{{ listing.description }}</p>
                     <p>Condition: {{ listing.condition }}</p>
                     <p>Ships to: {{ listing.shipping_options }}</p>
                     <p>Shipping cost: {{ listing.shipping_cost }}</p>
                     <p>Shipped from: {{ listing.location }}</p>
-                    <h4>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h4>
                     {% if request.user.is_authenticated %}
-                        <form action="{% url "index" %}" method="POST">
-                            {% csrf_token %}
-                            <div class="moneyform_field">
-                                {{ form.amount_bid.label}}
-                                {{ form.amount_bid }}
-                                {{ below_bid }}
-                            </div>
-                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                            <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
-                            <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
-                            <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
-                            <br>
-                            <input type="submit" class="btn btn-primary">
-                        </form>
+                        <div class="container-flex justify-content-start bid">
+                            <label>Would you like to place a bid? Make sure you select the currency you would like the bid in.</label>
+                            <form action="{% url "index" %}" method="POST">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
+                                <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
+                                <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
+                                <br>
+                                <input type="submit" class="btn btn-primary">
+                            </form>
+                        </div>
                     {% endif %}
                     <p>Bidding ends at {{ listing.end_bid_time }} in <b>{{ listing.end_bid_time.tzinfo }}</b> time</p>
+                </div>
+                <div class="col-3">
+                    <h5>Minimum bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h5>
+                    {% if listing.highest_bid != None %}
+                        <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
+                    {% endif %}
                 </div>
             </div>
         </div>
