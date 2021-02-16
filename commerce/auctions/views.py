@@ -13,6 +13,10 @@ import bootstrap4
 from bootstrap_datepicker_plus import DateTimePickerInput
 from django_countries import countries
 from moneyfield import MoneyField
+import djmoney_rates
+from djmoney_rates.utils import convert_money
+from money.money import Money
+from money.currency import Currency
 
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime'
@@ -53,6 +57,24 @@ class NewListingForm(forms.ModelForm):
 def index(request):
     if request.method == "POST":
         form = BidForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data["amount_bid"]
+            listing_id = request.POST["listing_id"]
+            og_amount = request.POST["og_amount"]
+            og_currency = request.POST["og_currency"]
+            amount = convert_money(amount.amount, amount.currency, og_currency)
+            og_bid = float(Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0])
+            if float(amount.amount) < og_bid:
+                message = f"Please match the starting bid of {og_amount} in {og_currency}"
+            else:
+                message = "Thank you for your bid"
+            return render(request, "auctions/index.html", {
+                "message": message
+            })
+        else:
+            return render(request, "auctions/index.html", {
+                "message": "Invalid"
+            })
     else:
         UTC = pytz.utc
         current_time = datetime.datetime.now(UTC)

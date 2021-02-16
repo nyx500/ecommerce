@@ -1,6 +1,8 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    <h1>{{ message }}</h1>
+    <h1>{{ works }}</h1>
     <h2>Active Listings</h2>
     {% for listing in listings %}
         <div class="container listing justify-content-center">
@@ -19,15 +21,19 @@
                     <p>Ships to: {{ listing.shipping_options }}</p>
                     <p>Shipping cost: {{ listing.shipping_cost }}</p>
                     <p>Shipped from: {{ listing.location }}</p>
-                    <h4>Starting bid: {{ listing.starting_bid }}</h4>
+                    <h4>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h4>
                     {% if request.user.is_authenticated %}
-                        <form action="{ url "index" }" method="POST">
+                        <form action="{% url "index" %}" method="POST">
+                            {% csrf_token %}
                             <div class="moneyform_field">
-                                {% load widget_tweaks %}
-                                {{ form.amount_bid.label}} in {{ listing.starting_bid.currency }}: 
-                                {% render_field form.amount_bid step="0.01" placeholder="00.00" value=value|floatformat:2 %}
+                                {{ form.amount_bid.label}}
+                                {{ form.amount_bid }}
+                                {{ below_bid }}
                             </div>
                             <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                            <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
+                            <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
+                            <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
                             <br>
                             <input type="submit" class="btn btn-primary">
                         </form>

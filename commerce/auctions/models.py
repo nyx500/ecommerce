@@ -9,7 +9,7 @@ from timezone_field import TimeZoneField
 from django_countries.fields import CountryField
 from django_countries import countries
 from djmoney.models.fields import MoneyField
-
+from six import python_2_unicode_compatible
 
 class User(AbstractUser):
     time_created = models.DateTimeField(auto_now_add=True)
@@ -66,7 +66,7 @@ class Listing(models.Model):
     COUNTRY_CHOICES = list_countries
 
     shipping_options = models.CharField(max_length=64, verbose_name="Can ship to:", choices=COUNTRY_CHOICES)
-    shipping_cost = MoneyField(max_digits=19, decimal_places=2, default=00.00, verbose_name="Shipping cost:")
+    shipping_cost = MoneyField(max_digits=19, decimal_places=2, default=00.00, default_currency="USD", verbose_name="Shipping cost:")
     location = CountryField(verbose_name="Country the product is being sent from:")
     time_listed = models.DateTimeField(auto_now_add=True)
     start_bid_time = models.DateTimeField(verbose_name="Enter start date and time:")
@@ -88,7 +88,7 @@ class Listing(models.Model):
 class Bid(models.Model):
     listing_id = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
-    amount_bid = models.FloatField(default=00.00, verbose_name="Place a bid")
+    amount_bid = MoneyField(max_digits=19, decimal_places=2, default=00.00, verbose_name="Place a bid")
     time_bid = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

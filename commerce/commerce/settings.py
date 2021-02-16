@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 from pathlib import Path
 import os
+from six import python_2_unicode_compatible
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,6 +42,8 @@ DATE_INPUT_FORMATS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'djmoney_rates',
+    'djmoney.contrib.exchange',
     'geoip2',
     'money',
     'moneyfield',
@@ -60,6 +64,13 @@ INSTALLED_APPS = [
     'pytz',
     'widget_tweaks'
 ]
+
+DJANGO_MONEY_RATES = {
+    'DEFAULT_BACKEND': 'djmoney_rates.backends.OpenExchangeBackend',
+    'OPENEXCHANGE_URL': 'http://openexchangerates.org/api/latest.json',
+    'OPENEXCHANGE_APP_ID': '58d70ceb1f49488690d4e1d361a8e28f',
+    'OPENEXCHANGE_BASE_CURRENCY': 'USD'
+}
 
 # This is important: tells Django models to save images to the media directory in the main project folder
 MEDIA_URL = '/media/'
