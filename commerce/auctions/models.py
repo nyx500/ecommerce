@@ -42,6 +42,7 @@ class Listing(models.Model):
 
     condition = models.CharField(max_length=64, verbose_name="Product condition:", choices = CONDITION_CHOICES)
     starting_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Starting bid:")
+    minimum_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Minimum bid:")
     highest_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Highest bid:", blank=True, null=True)
     # Sets the field to NULL if the category gets deleted
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings", verbose_name="Product category:")
