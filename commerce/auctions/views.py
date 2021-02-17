@@ -97,17 +97,28 @@ def index(request):
                 listing = Listing.objects.get(id=listing_id)
                 if listing.highest_bid is not None and amount <= listing.highest_bid:
                     # Increments the minimum bidding amount by a quarter of the original starting price
-                    listing.minimum_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25))
+                    new_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25))
+                    new_min_bid = new_bid + (listing.starting_bid * Decimal(0.25))
+                    listing.minimum_bid = new_min_bid
                     listing.save()
-                    # Creates new bid for previous higher bidder
-                    obj = Bid()
                     # Finds highest bid from bid objects
                     highest_bid = Bid.objects.filter(listing=listing).order_by('-amount_bid')[0]
-                    obj.bidder = highest_bid.bidder
-                    obj.listing = listing
-                    obj.amount_bid = listing.minimum_bid
-                    obj.save()
-                    message = f"Sorry! Unfortunately your bid of {amount} was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder.username}. Please try again!"
+                    
+                    if highest_bid.amount_bid > new_bid:
+                        # Creates new bid for previous higher bidder
+                        win = Bid()
+                        win.bidder = highest_bid.bidder
+                        win.listing = listing
+                        win.amount_bid = new_bid
+                        win.save()
+
+                    lose = Bid()
+                    lose.bidder = request.user
+                    lose.listing=listing
+                    lose.amount_bid = amount
+                    lose.save()
+
+                    message = f"Sorry! Unfortunately your bid of {amount} was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder.username}. {new_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
                     return render(request, "auctions/index.html", {
                         "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": message
                     })
@@ -130,16 +141,15 @@ def index(request):
                         "message": message
                     })
                 else:
-                    listing.minimum_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25))
+                    listing = Listing.objects.get(id=listing_id)
+                    listing.minimum_bid = listing.highest_bid + (listing.starting_bid * Decimal(0.25))
+                    listing.highest_bid = amount
                     listing.save()
                     obj = Bid()
                     obj.bidder = request.user
                     obj.listing = Listing.objects.get(id=listing_id)
                     obj.amount_bid = amount
                     obj.save()
-                    listing = Listing.objects.get(id=listing_id)
-                    listing.highest_bid = amount
-                    listing.save()
                     message = f"Thank you for your bid of {amount} on Listing #{listing.id}! Your bid has been successful!"
                     return render(request, "auctions/index.html", {
                         "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), 
