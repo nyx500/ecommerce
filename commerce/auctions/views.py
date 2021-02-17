@@ -57,66 +57,77 @@ class NewListingForm(forms.ModelForm):
         self.fields['category'].queryset = self.fields['category'].queryset.order_by('category')
 
 def index(request):
+    # Code for all methods to find active listings and update the database
+    UTC = pytz.utc
+    current_time = datetime.datetime.now(UTC)
+    for listing in Listing.objects.all():
+        # Checks if time is right for listing to be active
+        if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
+            listing.bid_active = True
+        else:
+            listing.bid_active = False
+        listing.save()
     if request.method == "POST":
         form = BidForm(request.POST)
+        listing = Listing.objects.get(id=request.POST["listing_id"])
         if form.is_valid():
+            # Money object used for user's bid
             amount = form.cleaned_data["amount_bid"]
+            # Listing of the object bid on
             listing_id = request.POST["listing_id"]
+            # Amount of starting/minimum bid price
             og_amount = request.POST["og_amount"]
+            # The currency of the starting/minimum bid price
             og_currency = request.POST["og_currency"]
+            # User's bid is converted into a money object with the same currency as the listing's currency
             amount = convert_money(amount.amount, amount.currency, og_currency)
+            # Turns starting/minimum bid amount into a float object, so that it can be compared with the bidder's amount
             og_bid = float(Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0])
+            # Checks if the bidder has matched the minimum bid amount
             if float(amount.amount) < og_bid:
-                message = f"Please match the starting bid of {og_amount} in {og_currency}"
+                # Returns a message telling the bidder that his amount has not matched the minimum bid
+                message = f"Please match the starting/minimum bid of {og_amount} in {og_currency}"
                 return render(request, "auctions/index.html", {
                             "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": message
                         })
-            else:  
+            # Code for if the bidder has placed enough money for a bid to be created
+            else:
+                # Increments the minimum bid amount for that listing by 25% of the original price every time a bid is made
                 listing = Listing.objects.get(id=listing_id)
                 listing.starting_bid.amount = listing.starting_bid.amount * Decimal(1.25)
                 listing.save()
-                bids = Listing.objects.get(id=listing_id).bids.all()
-                if bids is None:
-                    b = Bid(bidder=request.user, listing=Listing.objects.get(id=listing_id), amount_bid=amount)
-                    b.save()
+                if listing.highest_bid is not None and amount <= listing.highest_bid:
+                    # Creates new bid for previous higher bidder
+                    obj = Bid()
+                    # Finds highest bid from bid objects
+                    highest_bid = Bid.objects.filter(listing=listing).order_by('amount_bid')[0]
+                    obj.bidder = highest_bid.bidder
+                    obj.listing = listing
+                    obj.amount_bid = listing.starting_bid
+                    obj.save()
+                    message = f"Sorry! Unfortunately your bid was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder}. Please try again!"
+                    return render(request, "auctions/index.html", {
+                        "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": message
+                    })
+                else:
+                    obj = Bid()
+                    obj.bidder = request.user
+                    obj.listing = Listing.objects.get(id=listing_id)
+                    obj.amount_bid = amount
+                    obj.save()
                     listing = Listing.objects.get(id=listing_id)
                     listing.highest_bid = amount
                     listing.save()
+                    message = f"Thank you for your bid of {amount} on Listing #{listing.id}! Your bid has been successful!"
                     return render(request, "auctions/index.html", {
-                        "listings": Listing.objects.filter(bid_active=True), "form": BidForm(),
-                        "message":"Thank you for your bid!"
-                    })
-                else:
-                    for bid in bids:
-                        if bid.amount_bid.amount > amount.amount:
-                            obj = Bid()
-                            obj.listing = listing
-                            obj.bidder = bid.bidder
-                            obj.amount_bid = listing.starting_bid
-                            obj.save()
-                            return render(request, "auctions/index.html", {
-                                "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": f"Unfortunately, {bid.bidder} has already bid higher than you with a {bid.amount_bid} amount!"
-                            })  
-                    return render(request, "auctions/index.html", {
-                        "listings": Listing.objects.filter(bid_active=True), "form": BidForm(),
-                        "message":"Thank you for your bid!"
+                        "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), 
+                        "message": message
                     })
         else:
             return render(request, "auctions/index.html", {
                 "listings": Listing.objects.filter(bid_active=True), "form": BidForm(), "message": "Invalid form"
             })
     else:
-        UTC = pytz.utc
-        current_time = datetime.datetime.now(UTC)
-        for listing in Listing.objects.all():
-            # Turns current UTC time into the current time in the timezone of the user who created that listing by adding the utcoffset between UTC and that user's timezone to the current UTC time
-            if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
-                listing.bid_active = True
-            else:
-                listing.bid_active = False
-            bids = listing.bids.all().order_by('amount_bid')
-            listing.highest_bid = bids[0].amount_bid
-            listing.save()
         return render(request, "auctions/index.html", {
             "listings": Listing.objects.filter(bid_active=True), "form": BidForm()
         })
