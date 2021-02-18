@@ -1,10 +1,8 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h1 class="message">{{ message }}</h1>
-    <h2>Active Listings</h2>
-    {% for listing in listings %}
-        <div class="container listing justify-content-center">
+    <h2 class="message">{{ message }}</h2>
+    <div class="container listing justify-content-center">
             <div class="row">
                 <div class="col-3">
                     {% if listing.image.url == None %}
@@ -23,7 +21,7 @@
                     {% if request.user.is_authenticated %}
                         <div class="container-flex justify-content-start bid">
                             <label>Would you like to place a bid? Make sure you select the currency you would like the bid in.</label>
-                            <form action="{% url "index" %}" method="POST">
+                            <form action="{% url "view" listing.id %}" method="POST">
                                 {% csrf_token %}
                                 {{ form.as_p }}
                                 <input type="hidden" name="listing_id" value="{{ listing.id }}">
@@ -52,9 +50,7 @@
                             <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
                         {% endif %}
                     {% endif %}
-                    <a href="{% url 'view' listing.id %}">Listing Details</a>
                 </div>
             </div>
         </div>
-    {% endfor %}
 {% endblock %}

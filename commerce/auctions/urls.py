@@ -8,7 +8,8 @@ urlpatterns = [
     path("create_listing", views.create_listing, name="create"),
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
-    path("register", views.register, name="register")
+    path("register", views.register, name="register"),
+    path("<int:id>", views.view_listing, name="view")
 ]
 
 if settings.DEBUG:
