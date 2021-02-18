@@ -46,6 +46,7 @@
                         <h5>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h5>
                     {% else %}
                         <h5>Minimum bid: {{ listing.minimum_bid }} <b>({{ listing.minimum_bid.currency }})</b></h5>
+                        <h5>Last bid was {{ last_bid.amount_bid }} by user: {{ last_bid.bidder.username }}</h5>
                         {% if listing.highest_bid != None %}
                             <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
                         {% endif %}
