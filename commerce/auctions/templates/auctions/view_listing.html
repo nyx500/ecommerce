@@ -12,7 +12,21 @@
                     {% endif %}
                 </div>
                 <div class="col-6">
-                    <h3>Listing: {{ listing.name }}</h3>
+                    <div class="inline"><h3>Listing: {{ listing.name }}</h3></div>
+                    <div class="inline d-flex justify-content-end">
+                        {% if watchers and request.user in watchers %}
+                            <form action="{% url "view" listing.id %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="submit" name="unwatch" class="btn btn-success" value="Delete From Watchlist">
+                        {% else %}
+                            <form action="{% url "view" listing.id %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="submit" name="watch" class="btn btn-success" value="Add To Watchlist">
+                            </form>
+                        {% endif %}
+                    </div>
                     <p>{{ listing.description }}</p>
                     <p>Condition: {{ listing.condition }}</p>
                     <p>Ships to: {{ listing.shipping_options }}</p>
@@ -35,7 +49,12 @@
                                     <input type="hidden" name="og_currency" value="{{ listing.minimum_bid.currency }}">
                                 {% endif %}
                                 <br>
-                                <input type="submit" class="btn btn-primary">
+                                <input type="submit" name="bid" class="btn btn-primary" value="Place Bid">
+                            </form>
+                            <form action="{% url "view" listing.id %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="turn_off" value="off">
+                                <input type="submit" name="off" class="btn btn-secondary" value="Close the bid">
                             </form>
                         </div>
                     {% endif %}

@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% for listing in listings %}
+        <div class="container listing justify-content-center">
+            <div class="row">
+                <div class="col-3">
+                    {% if listing.image.url == None %}
+                        <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
+                    {% else %}
+                        <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
+                    {% endif %}
+                </div>
+                <div class="col-6">
+                    <h3>Listing: {{ listing.name }}</h3>
+                    <p>{{ listing.description }}</p>
+                    <p>Condition: {{ listing.condition }}</p>
+                    <p>Ships to: {{ listing.shipping_options }}</p>
+                    <p>Shipping cost: {{ listing.shipping_cost }}</p>
+                    <p>Shipped from: {{ listing.location }}</p>
+                    <a href="{% url 'view' listing.id %}">View Listing Details and/or Make a Bid</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

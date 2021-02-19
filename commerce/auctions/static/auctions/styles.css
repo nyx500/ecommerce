@@ -25,3 +25,7 @@
 .message {
     color: red;
 }
+
+.inline {
+    display: inline-block;
+}

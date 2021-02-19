@@ -13,6 +13,7 @@ from six import python_2_unicode_compatible
 
 class User(AbstractUser):
     time_created = models.DateTimeField(auto_now_add=True)
+    watched_listings = models.ManyToManyField('Listing', blank=True)
     def __str__(self):
         return f"{self.id}: {self.username} created at {self.time_created}"
 
@@ -76,6 +77,7 @@ class Listing(models.Model):
     )
     time_zone = TimeZoneField(verbose_name="Enter your time zone:")
     bid_active = models.BooleanField(default=False)
+    user_closed_bid = models.BooleanField()
 
     # Have to create a new function to round currency to the last two decimal points (this is because SQLite does not support DecimalField, therefore the float has to be rounded in a custom function)
     #https://stackoverflow.com/questions/23739030/restrict-django-floatfield-to-2-decimal-places/46081058#46081058

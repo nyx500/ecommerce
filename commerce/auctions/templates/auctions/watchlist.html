@@ -1,0 +1,35 @@
+{% extends 'auctions/layout.html' %}
+{% block body %}
+    {% for listing in watchlist %}
+         <div class="container listing justify-content-center">
+            <div class="row">
+                <div class="col-3">
+                    {% if listing.image.url == None %}
+                        <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
+                    {% else %}
+                        <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
+                    {% endif %}
+                </div>
+                <div class="col-6">
+                    <h3>Listing: {{ listing.name }}</h3>
+                    <p>{{ listing.description }}</p>
+                    <p>Condition: {{ listing.condition }}</p>
+                    <p>Ships to: {{ listing.shipping_options }}</p>
+                    <p>Shipping cost: {{ listing.shipping_cost }}</p>
+                    <p>Shipped from: {{ listing.location }}</p>
+                </div>
+                <div class="col-3">
+                    {% if listing.minimum_bid.amount == 00.00 %}
+                        <h5>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h5>
+                    {% else %}
+                        <h5>Minimum bid: {{ listing.minimum_bid }} <b>({{ listing.minimum_bid.currency }})</b></h5>
+                        {% if listing.highest_bid != None %}
+                            <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
+                        {% endif %}
+                    {% endif %}
+                    <button class="btn btn-warning"><a href="{% url 'view' listing.id %}">View Listing Details and/or Place a Bid</a></button>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
