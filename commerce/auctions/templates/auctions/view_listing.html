@@ -2,6 +2,7 @@
 
 {% block body %}
     <h2 class="message">{{ message }}</h2>
+    <h2 class="message">{{ winner }}</h2>
     <div class="container listing justify-content-center">
             <div class="row">
                 <div class="col-3">
@@ -51,11 +52,13 @@
                                 <br>
                                 <input type="submit" name="bid" class="btn btn-primary" value="Place Bid">
                             </form>
-                            <form action="{% url "view" listing.id %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="turn_off" value="off">
-                                <input type="submit" name="off" class="btn btn-secondary" value="Close the bid">
-                            </form>
+                            {% if request.user == listing.seller %}
+                                <form action="{% url "view" listing.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="turn_off" value="off">
+                                    <input type="submit" name="off" class="btn btn-secondary" value="Close the bid">
+                                </form>
+                            {% endif %}
                         </div>
                     {% endif %}
                     <p>Bidding ends at {{ listing.end_bid_time }} in <b>{{ listing.end_bid_time.tzinfo }}</b> time</p>
@@ -65,7 +68,7 @@
                         <h5>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h5>
                     {% else %}
                         <h5>Minimum bid: {{ listing.minimum_bid }} <b>({{ listing.minimum_bid.currency }})</b></h5>
-                        <h5>Last bid was {{ last_bid.amount_bid }} by user: {{ last_bid.bidder.username }}</h5>
+                        <h5>Current bid: {{ last_bid.amount_bid }} by user: {{ last_bid.bidder.username }}</h5>
                         {% if listing.highest_bid != None %}
                             <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
                         {% endif %}

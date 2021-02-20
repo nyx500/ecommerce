@@ -77,7 +77,7 @@ class Listing(models.Model):
     )
     time_zone = TimeZoneField(verbose_name="Enter your time zone:")
     bid_active = models.BooleanField(default=False)
-    user_closed_bid = models.BooleanField()
+    user_closed_bid = models.BooleanField(default=False)
 
     # Have to create a new function to round currency to the last two decimal points (this is because SQLite does not support DecimalField, therefore the float has to be rounded in a custom function)
     #https://stackoverflow.com/questions/23739030/restrict-django-floatfield-to-2-decimal-places/46081058#46081058
