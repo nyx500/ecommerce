@@ -29,3 +29,8 @@
 .inline {
     display: inline-block;
 }
+
+.comment_field {
+    width: 100%;
+    padding: 0 0 200px 0;
+}

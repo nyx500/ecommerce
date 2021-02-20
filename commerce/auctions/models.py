@@ -99,10 +99,12 @@ class Bid(models.Model):
         return f"Bid {self.id} of {self.amount_bid} on {self.listing.name} by user {self.bidder.username}"
 
 class Comment(models.Model):
-    product = models.ForeignKey(Listing, on_delete=models.CASCADE)
-    comment = models.CharField(max_length=768)
+    product = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    comment = models.CharField(max_length=768, verbose_name="Leave a comment:")
+    time_submitted = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Listing: {self.product.name}\nComment: {self.comment}"
+        return f"Listing: {self.product.name}\nComment: {self.comment} by {self.user}"
 
 

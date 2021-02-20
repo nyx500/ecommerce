@@ -14,20 +14,22 @@
                 </div>
                 <div class="col-6">
                     <div class="inline"><h3>Listing: {{ listing.name }}</h3></div>
-                    <div class="inline d-flex justify-content-end">
-                        {% if watchers and request.user in watchers %}
-                            <form action="{% url "view" listing.id %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                <input type="submit" name="unwatch" class="btn btn-success" value="Delete From Watchlist">
-                        {% else %}
-                            <form action="{% url "view" listing.id %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                <input type="submit" name="watch" class="btn btn-success" value="Add To Watchlist">
-                            </form>
-                        {% endif %}
-                    </div>
+                    {% if request.user.is_authenticated%}
+                        <div class="inline d-flex justify-content-end">
+                            {% if watchers and request.user in watchers %}
+                                <form action="{% url "view" listing.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    <input type="submit" name="unwatch" class="btn btn-success" value="Delete From Watchlist">
+                            {% else %}
+                                <form action="{% url "view" listing.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    <input type="submit" name="watch" class="btn btn-success" value="Add To Watchlist">
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                     <p>{{ listing.description }}</p>
                     <p>Condition: {{ listing.condition }}</p>
                     <p>Ships to: {{ listing.shipping_options }}</p>
@@ -72,6 +74,18 @@
                         {% if listing.highest_bid != None %}
                             <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
                         {% endif %}
+                    {% endif %}
+                    {% if request.user.is_authenticated %}
+                        <form action="{% url 'view' listing.id %}">
+                            {% csrf_token %}
+                            {{ comment_form.comment.label }}
+                            <br>
+                            {% load widget_tweaks %}
+                            {% render_field comment_form.comment class="comment_field" %}
+                            <br>
+                            <br>
+                            <input type="submit" name="leave_comment" class="btn btn-success" value="Submit">
+                        </form>
                     {% endif %}
                 </div>
             </div>
