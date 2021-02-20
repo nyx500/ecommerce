@@ -283,6 +283,7 @@ def register(request):
 
 def view_listing(request, id):
     listing = Listing.objects.get(id=id)
+    comments = listing.comments.all().order_by('-time_submitted')
     UTC = pytz.utc
     current_time = datetime.datetime.now(UTC)
     if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
@@ -314,7 +315,7 @@ def view_listing(request, id):
                 last_bid = ""
             return render (request, "auctions/view_listing.html", {
                 "message": message, "form": BidForm(), "last_bid": last_bid,
-                "listing": current_listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm()
+                "listing": current_listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
             })
         elif 'unwatch' in request.POST:
             current_listing = Listing.objects.get(id=request.POST["listing_id"])
@@ -328,12 +329,12 @@ def view_listing(request, id):
                 last_bid = ""
             return render (request, "auctions/view_listing.html", {
                 "message": message, "form": BidForm(), "last_bid": last_bid,
-                "listing": current_listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm()
+                "listing": current_listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
             })
         elif 'leave_comment' in request.POST:
             watchers =  listing.user_set.all()
             comment_form = CommentForm(request.POST)
-            if comment_form.is_valid:
+            if comment_form.is_valid():
                 comment = comment_form.cleaned_data['comment']
                 new_comment = Comment()
                 new_comment.comment = comment
@@ -346,7 +347,7 @@ def view_listing(request, id):
                     last_bid = ""
                 message = f"Thank you for submitting a comment."
                 return render(request, "auctions/view_listing.html", {
-                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm()
+                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
             else:
                 if listing.highest_bid is not None:
@@ -355,7 +356,7 @@ def view_listing(request, id):
                     last_bid = ""
                 message = f"Form data is invalid. Errors: {comment_form.errors}"
                 return render(request, "auctions/view_listing.html", {
-                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm()
+                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
 
         elif 'off' in request.POST:
@@ -389,7 +390,7 @@ def view_listing(request, id):
                     if listing.highest_bid is not None:
                         last_bid = Bid.objects.all().order_by('-time_bid')[0]
                     return render(request, "auctions/view_listing.html", {
-                                "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm()
+                                "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                             })
                 else:
                     # Increments the minimum bid amount for that listing by 25% of the original price every time a bid is made
@@ -420,7 +421,7 @@ def view_listing(request, id):
                         message = f"Sorry! Unfortunately your bid of {amount} was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder.username}. {new_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
                         last_bid = Bid.objects.all().order_by('-time_bid')[0]
                         return render(request, "auctions/view_listing.html", {
-                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm()
+                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
                     elif listing.highest_bid is None:
                         min_amount = convert_money(listing.minimum_bid.amount, listing.minimum_bid.currency, listing.starting_bid.currency)
@@ -439,7 +440,7 @@ def view_listing(request, id):
                         message = f"Thank you for your bid of {amount} on Listing #{listing.id}! Your bid has been successful!"
                         return render(request, "auctions/view_listing.html", {
                             "listing":listing, "form": BidForm(), 
-                            "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm()
+                            "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
                     else:
                         listing = Listing.objects.get(id=id)
@@ -461,7 +462,7 @@ def view_listing(request, id):
                         message = f"Thank you for your bid of {amount} on Listing #{listing.id}! Your bid has been successful!"
                         return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), 
-                            "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm()
+                            "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
             else:
                 listing = Listing.objects.get(id=id)
@@ -469,7 +470,7 @@ def view_listing(request, id):
                 if listing.highest_bid is not None:
                     last_bid = Bid.objects.all().order_by('-time_bid')[0]
                 return render(request, "auctions/view_listing.html", {
-                    "listing":listing, "last_bid": last_bid, "form": BidForm(), "message": "Invalid form", "watchers": watchers, "comment_form": CommentForm()
+                    "listing":listing, "last_bid": last_bid, "form": BidForm(), "message": "Invalid form", "watchers": watchers, "comment_form": CommentForm(), "comments": comments
                 })
     else:
         listing = Listing.objects.get(id=id)
@@ -481,7 +482,7 @@ def view_listing(request, id):
         return render(request, "auctions/view_listing.html",
         {   
             "form": BidForm(), "last_bid": last_bid,
-            "listing": listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm()
+            "listing": listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
         })
 
 @login_required
