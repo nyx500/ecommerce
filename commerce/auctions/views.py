@@ -494,15 +494,24 @@ def watchlist(request):
     })
 
 def categories(request):
-    categories = Category.objects.all()
+    categories = Category.objects.all().order_by('category')
     return render(request, "auctions/categories.html", {
         "categories": categories
     })
 
 def cat_listings(request, id):
     category = Category.objects.get(id=id)
-    listings = category.listings.all()
+    
+    UTC = pytz.utc
+    current_time = datetime.datetime.now(UTC)
+
+    active_listings = []
+    for listing in category.listings.all():
+        if (current_time >= listing.start_bid_time and current_time <= listing.end_bid_time):
+            if not listing.user_closed_bid:
+                active_listings.append(listing)
+                listing.save()
     return render(request, "auctions/cat_listings.html", {
-        "listings": listings
+        "listings": active_listings
     })
 
