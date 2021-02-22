@@ -13,13 +13,14 @@ import pytz
 import bootstrap4
 from bootstrap_datepicker_plus import DateTimePickerInput
 from django_countries import countries
-from moneyfield import MoneyField
+from djmoney.forms.fields import MoneyField
 import djmoney_rates
 from djmoney_rates.utils import convert_money
 from money.money import Money
 from money.currency import Currency
 from decimal import Decimal
 from django.db.models import Q
+from django_prices_openexchangerates.tasks import extract_rate, get_latest_exchange_rates, update_conversion_rates
 
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime'
@@ -87,13 +88,20 @@ def index(request):
             og_amount = request.POST["og_amount"]
             # The currency of the starting/minimum bid price
             og_currency = request.POST["og_currency"]
+
             # User's bid is converted into a money object with the same currency as the listing's currency
-            amount = convert_money(amount.amount, amount.currency, og_currency)
-            # Turns starting/minimum bid amount into a float object, so that it can be compared with the bidder's amount
-            strt_bid = float(Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0])
-            min_bid = float(Listing.objects.filter(id=listing_id).values_list('minimum_bid')[0][0])
+            rates = get_latest_exchange_rates()
+            rate_to_usd = (rates, amount.currency)
+            amount_in_usd = Decimal(amount.amount) / rate_to_usd
+            rate_to_og_currency = (rates, og_currency)
+            amount_in_og_currency = amount_in_usd * rate_to_og_currency
+            amount.amount = amount_in_og_currency
+            amount.currency = og_currency
+
+            strt_bid = Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0]
+            min_bid = Listing.objects.filter(id=listing_id).values_list('minimum_bid')[0][0]
             # Checks if the bidder has matched the minimum bid amount
-            if float(amount.amount) < strt_bid or float(amount.amount) < min_bid:
+            if amount.amount < strt_bid or amount.amount < min_bid:
                 # Returns a message telling the bidder that his amount has not matched the minimum bid
                 message = f"Please match the starting/minimum bid of {og_amount} in {og_currency}"
                 return render(request, "auctions/index.html", {
@@ -381,12 +389,12 @@ def view_listing(request, id):
                 # User's bid is converted into a money object with the same currency as the listing's currency
                 amount = convert_money(amount.amount, amount.currency, og_currency)
                 # Turns starting/minimum bid amount into a float object, so that it can be compared with the bidder's amount
-                strt_bid = float(Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0])
-                min_bid = float(Listing.objects.filter(id=listing_id).values_list('minimum_bid')[0][0])
+                strt_bid = Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0]
+                min_bid = Listing.objects.filter(id=listing_id).values_list('minimum_bid')[0][0]
                 # Checks if the bidder has matched the minimum bid amount
-                if float(amount.amount) < strt_bid or float(amount.amount) < min_bid:
+                if amount.amount < strt_bid or amount.amount < min_bid:
                     # Returns a message telling the bidder that his amount has not matched the minimum bid
-                    message = f"Error: Please match the starting/minimum bid of {og_amount} in {og_currency}"
+                    message = f"Error: Please match the starting/minimum bid of {og_amount}{og_currency}"
                     if listing.highest_bid is not None:
                         last_bid = Bid.objects.all().order_by('-time_bid')[0]
                     return render(request, "auctions/view_listing.html", {
