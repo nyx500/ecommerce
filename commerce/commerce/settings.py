@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 from pathlib import Path
 import os
-from six import python_2_unicode_compatible
 from openexchangerates import OpenExchangeRatesClient
 
 OPENEXCHANGERATES_API_KEY = "58d70ceb1f49488690d4e1d361a8e28f"
@@ -22,10 +21,8 @@ OPENEXCHANGE_BASE_CURRENCY = "USD"
 CELERY_BROKER_URL = 'amqp://localhost'
 
 client = OpenExchangeRatesClient('58d70ceb1f49488690d4e1d361a8e28f')
-
 currencies = client.currencies()
 currencies = [(k, v) for k, v in currencies.items() ]
-
 CURRENCY_CHOICES = currencies
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -56,11 +53,6 @@ DATE_INPUT_FORMATS = [
 INSTALLED_APPS = [
     'django_prices_openexchangerates',
     'djmoney_rates',
-    'djmoney.contrib.exchange',
-    'geoip2',
-    'money',
-    'moneyfield',
-    'currencies',
     'django_prices',
     'django_countries',
     'djmoney',

@@ -1,81 +1,32 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin import widgets
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from .models import Bid, Category, Comment, Listing, User
-from django import forms
-from django.utils import timezone
+from .models import *
 import datetime
 import pytz
-import bootstrap4
-from bootstrap_datepicker_plus import DateTimePickerInput
-from django_countries import countries
-from djmoney.forms.fields import MoneyField
-import djmoney_rates
 from djmoney_rates.utils import convert_money
-from money.money import Money
-from money.currency import Currency
 from decimal import Decimal
 from django.db.models import Q
 from django_prices_openexchangerates.tasks import extract_rate, get_latest_exchange_rates, update_conversion_rates
+from .forms import *
 
-class DateTimeInput(forms.DateTimeInput):
-    input_type = 'datetime'
-
-class BidForm(forms.ModelForm):
-    class Meta:
-        model = Bid
-        fields = ['amount_bid']
-
-
-class NewListingForm(forms.ModelForm):
-    class Meta:
-        model = Listing
-        fields = ['name', 'description', 'category', 'condition', 'start_bid_time', 'end_bid_time', 'image', 'starting_bid', 'shipping_cost', 'location', 'time_zone', 'shipping_options']
-        # Models do not take datetime formats whereas forms do. Therefore it is crucial to add the exact type of datetime input format to the form, so that it validates correctly. It is important for the input_format (server side validation) to match the widget DateTimePickerInput options in terms of whether you put / or - or : in between variables!!!! Otherwise the fields will not match and the form will not be validated
-        start_bid_time = forms.DateTimeField(initial=datetime.datetime.now(),input_formats=['%m/%d/%Y %H:%M:%S'])
-        end_bid_time = forms.DateTimeField(initial=(datetime.datetime.now() + datetime.timedelta(days=1)), label="Insert datetime", input_formats=['%m/%d/%Y %H:%M:%S'])
-        starting_bid = MoneyField(decimal_places=2, max_digits=19)
-        widgets = {
-            'description': forms.Textarea(attrs={"rows": 8, "cols": 100}),
-            'start_bid_time': DateTimePickerInput(
-                options={
-                    "format": "MM/DD/YYYY HH:mm:ss"
-                }
-            ),
-            'end_bid_time': DateTimePickerInput(
-                options={
-                    "format": "MM/DD/YYYY HH:mm:ss"
-                }
-            )
-        }
-        
-    # Attributed to this tutorial on how to order model fields in Django: https://stackoverflow.com/questions/42811866/how-to-sort-a-choicefield-in-a-modelform
-    def __init__(self, *args, **kwargs):
-        # The super() function returns a temporary object of the superclass kind (here it is a NewListingForm)
-        super(NewListingForm, self).__init__(*args, **kwargs)
-        self.fields['category'].queryset = self.fields['category'].queryset.order_by('category')
-
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ['comment']
-        comment = forms.Textarea()
-
+# Main page view
 def index(request):
-    # Code for all methods to find active listings and update the database
+
+    # Checks for active listings
     UTC = pytz.utc
     current_time = datetime.datetime.now(UTC)
     for listing in Listing.objects.all():
-        # Checks if time is right for listing to be active
         if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
-            listing.bid_active = True
+            if listing.user_closed_bid == False:
+                listing.bid_active = True
         else:
             listing.bid_active = False
         listing.save()
+        
     if request.method == "POST":
         form = BidForm(request.POST)
         listing = Listing.objects.get(id=request.POST["listing_id"])
@@ -91,15 +42,15 @@ def index(request):
 
             # User's bid is converted into a money object with the same currency as the listing's currency
             rates = get_latest_exchange_rates()
-            rate_to_usd = (rates, amount.currency)
+            rate_to_usd = extract_rate(rates, amount.currency)
             amount_in_usd = Decimal(amount.amount) / rate_to_usd
-            rate_to_og_currency = (rates, og_currency)
+            rate_to_og_currency = extract_rate(rates, og_currency)
             amount_in_og_currency = amount_in_usd * rate_to_og_currency
             amount.amount = amount_in_og_currency
             amount.currency = og_currency
 
-            strt_bid = Listing.objects.filter(id=listing_id).values_list('starting_bid')[0][0]
-            min_bid = Listing.objects.filter(id=listing_id).values_list('minimum_bid')[0][0]
+            strt_bid = Listing.objects.get(id=listing_id).starting_bid
+            min_bid = Listing.objects.get(id=listing_id).minimum_bid
             # Checks if the bidder has matched the minimum bid amount
             if amount.amount < strt_bid or amount.amount < min_bid:
                 # Returns a message telling the bidder that his amount has not matched the minimum bid
@@ -397,6 +348,8 @@ def view_listing(request, id):
                     message = f"Error: Please match the starting/minimum bid of {og_amount}{og_currency}"
                     if listing.highest_bid is not None:
                         last_bid = Bid.objects.all().order_by('-time_bid')[0]
+                    else:
+                        last_bid = None
                     return render(request, "auctions/view_listing.html", {
                                 "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                             })
