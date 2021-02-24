@@ -2,31 +2,29 @@
 
 {% block body %}
     <h1 class="message">{{ message }}</h1>
-    <h2>Active Listings</h2>
-    {% for listing in listings %}
-        <div class="container listing justify-content-center">
-            <div class="row">
-                <div class="col-3">
-                    {% if listing.image.url == None %}
-                        <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
-                    {% else %}
-                        <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
-                    {% endif %}
+    <h2 class="title">Active Listings</h2>
+    <div class="container justify-content-center">
+        <div class="row">
+            {% for listing in listings %}
+                <div class="col-4 listing">
+                    <div class="info">
+                        {% if listing.image.url == None %}
+                            <img src="/media/no_img.svg" alt="No image">
+                        {% else %}
+                            <img src="{{ listing.image.url }}" alt="Broken image">
+                        {% endif %}
+                        {{ listing.name }}
+                        {{ listing.description }}
+                        {{ listing.condition }}
+                        {% if listing.minimum_bid == None %}
+                            <div class="info">Current bid: N/A</div>
+                        {% else %}
+                            <div class="info">Current bid: {{ listing.current_bid.amount }}({{ listing.current_bid.currency }})</div>
+                        {% endif %}
+                        <a href="{% url 'view' listing.id %}">Listing Details</a>
+                    </div>
                 </div>
-                <div class="col-6">
-                    <h3>Listing: {{ listing.name }}</h3>
-                    <p>Description: {{ listing.description }}</p>
-                    <p>Condition: {{ listing.condition }}</p>
-                </div>
-                <div class="col-3">
-                    {% if listing.minimum_bid == 00.00 or None %}
-                        <h5>Current bid: N/A</h5>
-                    {% else %}
-                        <h5>Current bid: {{ listing.current_bid.amount }}({{ listing.current_bid.currency }}) </h5>
-                    {% endif %}
-                    <a href="{% url 'view' listing.id %}">Listing Details</a>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
 {% endblock %}
