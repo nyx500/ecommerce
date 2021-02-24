@@ -21,8 +21,7 @@ def index(request):
     current_time = datetime.datetime.now(UTC)
     for listing in Listing.objects.all():
         if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
-            if listing.user_closed_bid == False:
-                listing.bid_active = True
+            listing.bid_active = True
         else:
             listing.bid_active = False
         listing.save()
@@ -128,7 +127,7 @@ def index(request):
             })
     else:
         return render(request, "auctions/index.html", {
-            "listings": Listing.objects.filter(Q(bid_active=True) & Q(user_closed_bid=False)), "form": BidForm()
+            "listings": Listing.objects.filter(Q(bid_active=True) & Q(user_closed_bid=False))
         })
 
 def create_listing(request):
