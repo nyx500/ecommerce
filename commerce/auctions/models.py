@@ -36,8 +36,9 @@ class Listing(models.Model):
     description = models.CharField(max_length=255, verbose_name="Product description:", blank=True, null=True)
     condition = models.CharField(max_length=64, verbose_name="Product condition:", choices = CONDITION_CHOICES)
     starting_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Starting bid:")
-    minimum_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Minimum bid:")
+    minimum_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Minimum bid:", null=True, blank=True)
     highest_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Highest bid:", blank=True, null=True)
+    current_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Current bid:", blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings", verbose_name="Product category:")
 
     # Creates a custom image path for each user via their id. The join function creates a path that links the media folder in the root directory to the user id in that 'instance' (current object) and saves it as the filename the user has uploaded
@@ -69,7 +70,7 @@ class Listing(models.Model):
     )
     time_zone = TimeZoneField(verbose_name="Enter your time zone (required):")
     bid_active = models.BooleanField(default=False)
-    user_closed_bid = models.BooleanField(default=False)
+    increment = models.IntegerField(default=1)
     def __str__(self):
         return f"{self.id}: {self.name} listed at {self.starting_bid} on date {self.time_listed}"
 

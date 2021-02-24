@@ -13,14 +13,16 @@
                         <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
                     {% endif %}
                 </div>
+                <div class="col-6">
+                    <h3>Listing: {{ listing.name }}</h3>
+                    <p>Description: {{ listing.description }}</p>
+                    <p>Condition: {{ listing.condition }}</p>
+                </div>
                 <div class="col-3">
-                    {% if listing.minimum_bid.amount == 00.00 %}
-                        <h5>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h5>
+                    {% if listing.minimum_bid == 00.00 or None %}
+                        <h5>Current bid: N/A</h5>
                     {% else %}
-                        <h5>Minimum bid: {{ listing.minimum_bid }} <b>({{ listing.minimum_bid.currency }})</b></h5>
-                        {% if listing.highest_bid != None %}
-                            <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
-                        {% endif %}
+                        <h5>Current bid: {{ listing.current_bid.amount }}({{ listing.current_bid.currency }}) </h5>
                     {% endif %}
                     <a href="{% url 'view' listing.id %}">Listing Details</a>
                 </div>

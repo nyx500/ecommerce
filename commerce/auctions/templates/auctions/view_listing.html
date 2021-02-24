@@ -42,7 +42,7 @@
                                 {% csrf_token %}
                                 {{ form.as_p }}
                                 <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                {% if listing.minimum_bid.amount == 00.00 %}
+                                {% if listing.minimum_bid.amount is None %}
                                     <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
                                     <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
                                     <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
@@ -68,15 +68,13 @@
                     <p>Bidding ends at {{ listing.end_bid_time }} in <b>{{ listing.end_bid_time.tzinfo }}</b> time</p>
                 </div>
                 <div class="col-3">
-                    {% if listing.minimum_bid.amount == 00.00 %}
-                        <h5>Starting bid: {{ listing.starting_bid }} <b>({{ listing.starting_bid.currency }})</b></h5>
+                    <h5>Current bid: {{ listing.current_bid }}</h5>
+                    {% if listing.minimum_bid.amount is None %}
+                        <h5>Minimum bid: {{ listing.starting_bid }}
                     {% else %}
-                        <h5>Minimum bid: {{ listing.minimum_bid }} <b>({{ listing.minimum_bid.currency }})</b></h5>
-                        <h5>Current bid: {{ last_bid.amount_bid }} by user: {{ last_bid.bidder.username }}</h5>
-                        {% if listing.highest_bid != None %}
-                            <h5>Highest bid so far: {{ listing.highest_bid }} <b>{{ listing.highest_bid.currency }}</b></h5>
-                        {% endif %}
+                        <h5>Minimum bid: {{ listing.minimum_bid }} </b></h5>
                     {% endif %}
+                    <h5>Max bid: {{ listing.highest_bid }}</h5>
                     {% if request.user.is_authenticated %}
                         <form action="{% url 'view' listing.id %}" method="POST">
                             {% csrf_token %}
