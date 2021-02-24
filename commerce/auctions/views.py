@@ -11,22 +11,12 @@ from djmoney_rates.utils import convert_money
 from decimal import Decimal
 from django_prices_openexchangerates.tasks import extract_rate, get_latest_exchange_rates, update_conversion_rates
 from .forms import *
+from .functions import *
 
 # Main page view
 def index(request):
-
-    # Checks for active listings
-    UTC = pytz.utc
-    current_time = datetime.datetime.now(UTC)
-    for listing in Listing.objects.all():
-        if listing.start_bid_time <= current_time and current_time < listing.end_bid_time:
-            listing.bid_active = True
-        else:
-            listing.bid_active = False
-        listing.save()
-        
+    is_active()
     listings = Listing.objects.filter(bid_active=True)
-
     if request.method == "POST":
         form = BidForm(request.POST)
         listing = Listing.objects.get(id=request.POST["listing_id"])
@@ -150,15 +140,10 @@ def create_listing(request):
             # Makes naive times aware
             start_time = form.cleaned_data["start_bid_time"] - utc_offset
             end_time = form.cleaned_data["end_bid_time"] - utc_offset
-
+            
             UTC = pytz.utc
-
             current_time = datetime.datetime.now(UTC)
-
             obj = Listing()
-            # Checks if user's current time is in between the start and end datetimes which they entered and sets the bid to active if this is the case
-            if start_time <= current_time and current_time <= end_time:
-                obj.bid_active = True
             obj.seller = request.user
             obj.name = form.cleaned_data["name"]
             obj.description = form.cleaned_data["description"]
@@ -173,6 +158,7 @@ def create_listing(request):
             obj.shipping_cost= form.cleaned_data["shipping_cost"]
             obj.location= form.cleaned_data["location"]
             obj.save()
+            add_active(obj, start_time, end_time)
             return render(request, "auctions/create_listing.html", {
             "form": NewListingForm(), "message1": "Works: check admin class", "start_time": start_time, "end_time": end_time, "current_time": current_time, "utc_offset": utc_offset
             })
@@ -248,13 +234,7 @@ def register(request):
 def view_listing(request, id):
     listing = Listing.objects.get(id=id)
     comments = listing.comments.all().order_by('-time_submitted')
-    UTC = pytz.utc
-    current_time = datetime.datetime.now(UTC)
-    if listing.start_bid_time <= current_time and current_time <= listing.end_bid_time:
-            listing.bid_active = True
-    else:
-        listing.bid_active = False
-    listing.save()
+    add_active(listing, listing.start_bid_time, listing.end_bid_time)
     winner = ""
     if request.user.is_authenticated and listing.highest_bid is not None:
         highest_bidder = Bid.objects.all().order_by('-amount_bid')[0].bidder
@@ -473,14 +453,7 @@ def categories(request):
 
 def cat_listings(request, id):
     category = Category.objects.get(id=id)
-    
-    UTC = pytz.utc
-    current_time = datetime.datetime.now(UTC)
-    for listing in category.listings.all():
-        if (current_time >= listing.start_bid_time and current_time < listing.end_bid_time):
-            listing.bid_active = True
-        else:
-            listing.bid_active = False
+    is_active()
     listings = category.listings.filter(bid_active=True)
     return render(request, "auctions/cat_listings.html", {
         "listings": listings
