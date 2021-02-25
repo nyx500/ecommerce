@@ -3,25 +3,29 @@
 {% block body %}
     <h1 class="message">{{ message }}</h1>
     <h2 class="title">Active Listings</h2>
-    <div class="container justify-content-center">
+    <div class="container index">
         <div class="row">
             {% for listing in listings %}
-                <div class="col-4 listing">
-                    <div class="info">
-                        {% if listing.image.url == None %}
-                            <img src="/media/no_img.svg" alt="No image">
-                        {% else %}
-                            <img src="{{ listing.image.url }}" alt="Broken image">
-                        {% endif %}
-                        {{ listing.name }}
-                        {{ listing.description }}
-                        {{ listing.condition }}
-                        {% if listing.minimum_bid == None %}
-                            <div class="info">Current bid: N/A</div>
-                        {% else %}
-                            <div class="info">Current bid: {{ listing.current_bid.amount }}({{ listing.current_bid.currency }})</div>
-                        {% endif %}
-                        <a href="{% url 'view' listing.id %}">Listing Details</a>
+                <div class="col-lg-4 d-flex align-items-stretch">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="container">
+                                {% if listing.image.url == None %}
+                                    <img class="card-img-top" src="/media/no_img.svg" alt="No image">
+                                {% else %}
+                                    <img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
+                                {% endif %}
+                            </div>
+                            <h5 class="card-title">{{ listing.name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ listing.condition }}</h6>
+                            <p class="card-text">{{ listing.description }}</p>
+                            {% if listing.minimum_bid == None %}
+                                <p class="card-text">Current bid: N/A</p>
+                            {% else %}
+                                <p class="card-text">Current bid: {{ listing.current_bid.amount }}({{ listing.current_bid.currency }}</p>
+                            {% endif %}
+                            <a class="card-link" href="{% url 'view' listing.id %}">Listing Details</a>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
