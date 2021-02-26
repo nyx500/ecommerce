@@ -2,10 +2,6 @@
     margin: 2vw;
 }
 
-.listing {
-    border: 1px solid black;
-}
-
 #is_authenticated {
     margin: 2vw;
 }
@@ -14,9 +10,8 @@
     margin: 2vw;
 }
 
-.info {
-    display: block;
-    text-align: center;
+.card {
+    box-shadow: 0 0 2px 2px lightgrey;
 }
 
 #images {
@@ -27,8 +22,91 @@
     margin-left: 0;
 }
 
-img {
-    height: 200px;
+.card {
+    margin: 1vw;
+}
+
+.parent_image_container {
+    width: 18rem;
+    height: 20rem;
+}
+
+.image_container {
+    height: 20rem;
+    object-position: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 1vw;
+}
+
+.image_container img {
+    width: auto;
+    height: 100%;
+    margin: 0 auto;
+    padding: 2vw;
+    ;
+}
+
+p {
+    padding: 0;
+    margin: 0;
+}
+
+.card_link_container {
+    background-color: red;
+}
+
+.card {
+    position: relative!important;
+}
+
+.unwatch {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    left: 2rem;
+    padding: 0.4rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.watch {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    left: 4.2rem;
+    padding: 0.4rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.card-link {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0.2rem;
+    color: black;
+    font-weight: bold;
+    background-color: rgb(241, 205, 42);
+    border-radius: 0.4vw;
+    padding: 0.5rem;
+    margin-right: 0.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.card-link:hover {
+    background-color: rgb(187, 155, 12);
+    color: green;
+}
+
+.time {
+    color: grey;
+    margin-top: 2vh;
+    margin-bottom: 8vh;
+    font-size: small;
+    font-style: italic;
 }
 
 .index {
@@ -36,13 +114,6 @@ img {
 }
 
 img {
-    margin: 2vw;
-}
-
-.listing {
-    width: 100%;
-    border: 1px solid gray;
-    padding: 2vh;
     margin: 2vw;
 }
 
@@ -73,4 +144,12 @@ img {
     background-color: rgb(241, 240, 240);
     margin-left: -2vw;
     margin-top: 0.5vh;
+}
+
+.no_image {
+    width: 90%;
+}
+
+.blue {
+    color: rgb(25, 76, 185);
 }

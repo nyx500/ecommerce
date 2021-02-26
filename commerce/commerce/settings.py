@@ -18,8 +18,6 @@ OPENEXCHANGERATES_API_KEY = "58d70ceb1f49488690d4e1d361a8e28f"
 
 OPENEXCHANGE_BASE_CURRENCY = "USD"
 
-CELERY_BROKER_URL = 'amqp://localhost'
-
 client = OpenExchangeRatesClient('58d70ceb1f49488690d4e1d361a8e28f')
 currencies = client.currencies()
 currencies = [(k, v) for k, v in currencies.items() ]
@@ -51,6 +49,7 @@ DATE_INPUT_FORMATS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'mathfilters',
     'django_prices_openexchangerates',
     'djmoney_rates',
     'django_prices',

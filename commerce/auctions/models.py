@@ -44,7 +44,7 @@ class Listing(models.Model):
     # Creates a custom image path for each user via their id. The join function creates a path that links the media folder in the root directory to the user id in that 'instance' (current object) and saves it as the filename the user has uploaded
     def image_path(instance, filename):
         return os.path.join(settings.MEDIA_ROOT, f"{str(instance.seller.id)}/{filename}")
-    image = models.ImageField(upload_to=image_path, verbose_name="Upload image",blank=True, null=True)
+    image = models.ImageField(upload_to=image_path, verbose_name="Upload image", blank=True, null=True)
 
     # Creates a list of countries where the product can be sent to
     list_countries = list(countries)
@@ -65,6 +65,7 @@ class Listing(models.Model):
     shipping_options = models.CharField(max_length=64, verbose_name="Ships to:", choices=COUNTRY_CHOICES)
     shipping_cost = MoneyField(max_digits=19, decimal_places=2, default=00.00, default_currency="USD", verbose_name="Shipping cost:")
     time_listed = models.DateTimeField(auto_now_add=True)
+    time_difference = models.DurationField(blank=True, null=True)
     start_bid_time = models.DateTimeField(verbose_name="Enter start date and time:")
     end_bid_time = models.DateTimeField(verbose_name="Enter end date and time:"
     )

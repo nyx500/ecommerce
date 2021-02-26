@@ -20,3 +20,9 @@ def add_active(object, start, end):
     if start <= current_time and current_time <= end:
         object.bid_active = True
         object.save()
+
+def when_created(listings):
+    UTC = pytz.utc
+    for listing in listings:
+        listing.time_difference = datetime.datetime.now(UTC) - listing.time_listed
+        listing.save()

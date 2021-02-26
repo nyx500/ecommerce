@@ -15,12 +15,29 @@ from .functions import *
 
 # Main page view
 def index(request):
-    # Sets 'bid active' property for objects for which the current time is between their start bid and end bid times
     is_active()
     listings = Listing.objects.filter(bid_active=True)
-    return render(request, "auctions/index.html", {
-        "listings": listings
-        })
+    when_created(listings)
+    if request.method == "POST":
+        listing = Listing.objects.get(id=request.POST["listing_id"])
+        if 'watch' in request.POST:
+            request.user.watched_listings.add(listing)
+            request.user.save()
+            message = "You have added this listing to your watchlist"
+            return render (request, "auctions/view_listing.html", {
+                "listings": listings, "message": message
+            })
+        elif 'unwatch' in request.POST:
+            listing.user_set.remove(request.user)
+            message = "You have removed this listing to your watchlist"
+            return render (request, "auctions/view_listing.html", {
+                "message": message, "listings": listings
+            })
+    else:
+        # Sets 'bid active' property for objects for which the current time is between their start bid and end bid times
+        return render(request, "auctions/index.html", {
+            "listings": listings
+            })
 
 def create_listing(request):
     if request.method == "POST":
@@ -45,7 +62,8 @@ def create_listing(request):
             obj.description = form.cleaned_data["description"]
             obj.category = form.cleaned_data["category"]
             obj.condition= form.cleaned_data["condition"]
-            obj.image = form.cleaned_data['image']
+            if form.cleaned_data["image"]:
+                obj.image = form.cleaned_data['image']
             obj.start_bid_time= start_time
             obj.time_zone = time_zone
             obj.end_bid_time= end_time
@@ -78,7 +96,6 @@ def create_listing(request):
 
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -128,6 +145,8 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def view_listing(request, id):
+    listing = Listing.objects.filter(id=id)
+    when_created(listing)
     listing = Listing.objects.get(id=id)
     comments = listing.comments.all().order_by('-time_submitted')
     add_active(listing, listing.start_bid_time, listing.end_bid_time)
