@@ -2,6 +2,10 @@
     margin: 2vw;
 }
 
+body {
+    background-color: rgb(236, 236, 236);
+}
+
 #is_authenticated {
     margin: 2vw;
 }
@@ -152,4 +156,28 @@ img {
 
 .blue {
     color: rgb(25, 76, 185);
+}
+
+.view {
+    box-shadow: 0 0 2px 2px grey;
+    margin: 10px;
+    background-color: white;
+}
+
+.view img {
+    float: left;
+}
+
+.comment_container {
+    border: 1px solid grey;
+    margin: 10px;
+}
+
+.list-unstyled {
+    margin: 20px;
+}
+
+.small {
+    color: grey;
+    font-size: small;
 }

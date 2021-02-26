@@ -24,7 +24,7 @@
                             </h6>
                             <p class="card-text">{{ listing.description }}</p>
                             {% if listing.minimum_bid == None %}
-                                <p class="card-text current_bid"><b>Current price: </b><b class="blue">N/A</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>
+                                <p class="card-text current_bid"><b>Current price: </b><b class="blue">No bids made yet</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>
                             {% else %}
                                 <p class="card-text current_bid"><b>Current price: </b><b class="blue">{{ listing.current_bid }}</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>
                             {% endif %}
