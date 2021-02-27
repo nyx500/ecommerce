@@ -13,6 +13,8 @@
                                 <div class="container image_container">
                                     <a href="{% url 'view' listing.id %}">{% if listing.image %}
                                         <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
+                                    {% elif listing.image_url %}
+                                        <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
                                     {% else %}
                                         <img class="card-img-top" src="/media/no_img.svg" alt="No image">
                                     {% endif %}</a>

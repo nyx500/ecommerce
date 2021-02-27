@@ -9,6 +9,8 @@
                 <div class="container" style="display: inline;">
                     {% if listing.image %}
                         <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
+                    {% elif listing.image_url %}
+                        <img src="{{ listing.image_url }}" style="width: 20vw;" alt="Broken image">
                     {% else %}
                         <img class="no_image" src="/media/no_img.svg" alt="No image">
                     {% endif %}

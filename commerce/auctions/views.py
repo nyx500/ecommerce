@@ -44,6 +44,12 @@ def create_listing(request):
         form = NewListingForm(request.POST, request.FILES)
         # Server-side check validating the form
         if form.is_valid():
+
+            if form.cleaned_data["image"] and form.cleaned_data["image_url"]:
+                return render(request, "auctions/create_listing.html", {
+                "form": NewListingForm(), "timezones": pytz.common_timezones, "message": "Error: you must either 1) upload an image OR 2) enter an image URL, but not both."
+            })
+
             # Changed django.utils file code, so that the user data returns a naive datetime object that I am manipulating manually to store the data in the user's local time, for easier comparison purposes
             time_zone = form.cleaned_data["time_zone"]
 
@@ -64,6 +70,8 @@ def create_listing(request):
             obj.condition= form.cleaned_data["condition"]
             if form.cleaned_data["image"]:
                 obj.image = form.cleaned_data['image']
+            if form.cleaned_data["image_url"]:
+                obj.image_url = form.cleaned_data['image_url']
             obj.start_bid_time= start_time
             obj.time_zone = time_zone
             obj.end_bid_time= end_time

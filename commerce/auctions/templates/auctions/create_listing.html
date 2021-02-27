@@ -1,15 +1,15 @@
 {% extends "auctions/layout.html" %}
+
+{% load crispy_forms_tags %}
+
 {% block title %}
     Create Listing
 {% endblock %}
 {% block body %}
-    <div class="container justify-content-center"><h3>Create a New Listing</h3></div>
-    <br>
-    <h3>{{ message }}</h3>
-    <h3>{{ message1 }}</h3>
-    <h3>{{ message2 }}</h3>
-    <h3>{{ message3 }}</h3>
-    <h3>{{ message4 }}</h3>
+    <div class="container justify-content-center">
+        <h3>Create a New Listing</h3>
+        <h3>{{ message }}</h3>
+    </div>
     {% if form.errors %}
         {% for field in form %}
             {% for error in field.errors %}
@@ -30,67 +30,43 @@
         {% load widget_tweaks %}
         <div class="container justify-content-center">
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.name.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.name placeholder="Enter name of product" style="width: 40vw;" %}
+                    {{ form.name|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.description.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.description placeholder="Describe product" %}
+                    {{ form.description|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.category.label }}
-                </div>
                 <div class="col-10">
-                    {{ form.category }}
+                    {{ form.category|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.condition.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.condition placeholder="Old or new?" style="width: 25vw;" %}
+                    {{ form.condition|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.starting_bid.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.starting_bid style="padding: 1vh;margin-right: 1vh;" %}
+                    {{ form.starting_bid|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.shipping_options.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.shipping_options placeholder="Enter a country/continent/worldwide" style="width: 25vw;" %}
+                    {{ form.shipping_options|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.shipping_cost.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.shipping_cost style="padding: 1vh;margin-right: 1vh;" %}
+                    {{ form.shipping_cost|as_crispy_field }}
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-2">
-                    {{ form.location.label }}
-                </div>
                 <div class="col-10">
-                    {% render_field form.location step=".01" placeholder="Where is the product being shipped from?" style="width: 25vw;" %}
+                    {{ form.location|as_crispy_field }}
                 </div>
             </div>
             <div id="images">
@@ -102,6 +78,7 @@
                         {% render_field form.image placeholder="Upload Image" style="width: 25vw;" %}
                     </div>
                 </div>
+                <h3>OR</h3>
                 <div class="row form-group image-form">
                     <div class="col-2">
                         {{ form.image_url.label }}
@@ -138,15 +115,12 @@
                     {{ form.end_bid_time }}
                 </div>
             </div>
+            <br>
             <div class="row form-group">
                 <div class="col">
-                    <input type="submit" value="Create new listing">
+                    <input class="btn btn-info" type="submit" value="Submit to create new listing">
                 </div>
             </div>
         </div>
     </form>
-    Start time: {{ start_time }} {{ start_time.tzinfo }}
-    End time: {{ end_time }} {{ end_time.tzinfo }}
-    Current time: {{ current_time }} {{ current_time.tzinfo }}
-    UTC offset: {{ utc_offset }}
 {% endblock %}

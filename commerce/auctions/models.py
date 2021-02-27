@@ -45,6 +45,7 @@ class Listing(models.Model):
     def image_path(instance, filename):
         return os.path.join(settings.MEDIA_ROOT, f"{str(instance.seller.id)}/{filename}")
     image = models.ImageField(upload_to=image_path, verbose_name="Upload image", blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True)
 
     # Creates a list of countries where the product can be sent to
     list_countries = list(countries)

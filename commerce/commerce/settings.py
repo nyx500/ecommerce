@@ -49,6 +49,7 @@ DATE_INPUT_FORMATS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'crispy_forms',
     'mathfilters',
     'django_prices_openexchangerates',
     'djmoney_rates',
@@ -68,6 +69,8 @@ INSTALLED_APPS = [
     'pytz',
     'widget_tweaks'
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 DJANGO_MONEY_RATES = {
     'DEFAULT_BACKEND': 'djmoney_rates.backends.OpenExchangeBackend',
