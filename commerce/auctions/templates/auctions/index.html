@@ -7,7 +7,7 @@
         <div class="row">
             {% for listing in listings %}
                 <div class="col-lg-4 d-flex align-items-stretch">
-                    <div class="card">
+                    <div class="card grey">
                         <div class="card-body">
                             <div class="container parent_image_container">
                                 <div class="container image_container">
@@ -20,8 +20,6 @@
                             </div>
                             <h5 class="card-title"><a href="{% url 'view' listing.id %}">{{ listing.name }}</a></h5>
                             <h6 class="card-subtitle mb-2 text-muted">{{ listing.condition }}</h6>
-                            <h6 class="card-subtitle mb-2 text-muted">
-                            </h6>
                             <p class="card-text">{{ listing.description }}</p>
                             {% if listing.minimum_bid == None %}
                                 <p class="card-text current_bid"><b>Current price: </b><b class="blue">No bids made yet</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>

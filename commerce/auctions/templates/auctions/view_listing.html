@@ -5,7 +5,7 @@
     <h2 class="message">{{ winner }}</h2>
     <div class="row">
         <div class="col-8">
-            <div class="view container">
+            <div class="card">
                 <div class="row">
                     <div class="col-4">
                         <div class="container" style="display: inline;">
@@ -16,20 +16,156 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="col-8">
-                        <div class="container" style="display: inline;">
+                    <div class="col-4">
+                        <div class="container view_info">
                             <ul class="list-unstyled">
-                                <li><h3>{{ listing.name }}</h3></li>
-                                <li><p class="small">Condition: <em>{{ listing.condition }}</em></p></li>
-                                <li><p>{{ listing.description }}</p></li>
+                                <li><h3 class="space">{{ listing.name }}</h3></li>
+                                <li><p class="small space">Condition: {{ listing.condition }}</p></li>
+                                <li>
+                                    <p class="space">
+                                        {% if listing.minimum_bid  %}
+                                            <h5>Minimum Bid: {{ listing.starting_bid }}
+                                        {% endif %}
+                                    </p>
+                                </li>
+                                <li>
+                                    <p class="space">
+                                    {% if listing.current_bid %}
+                                        Current Price: <b class="blue">{{ listing.current_bid }}</b>
+                                    {% else %}
+                                        Current Price: <b class="blue">No bids</b>
+                                    {% endif %}
+                                    </p>
+                                </li>
+                                <li><p class="space">Starting Price: {{ listing.starting_bid }}</p></li>
+                                <li><p class="space">{{ listing.description }}</p></li>
+                                <li><p class="space">Ships to: {{ listing.shipping_options }}</p></li>
+                                <li><p class="space">Shipping cost: {{ listing.shipping_cost }}</p></li>
+                                <li>
+                                    <p class="time space"> 
+                                    {% load mathfilters %}
+                                        {% if listing.time_difference.days == 0 %}
+                                            Created {{ listing.time_difference.seconds|div:3600|floatformat:0 }} hours and 
+                                            {{ listing.time_difference.seconds|div:60|mod:60|floatformat:0 }} minutes ago.
+                                        {% elif listing.time_difference.days == 0 and listing.time_difference.seconds|div:3600 == 0 %}
+                                            Created {{ listing.time_difference.seconds|div:60|mod:60|floatformat:0 }}minutes ago.
+                                        {% else %}
+                                            Created {{ listing.time_difference.days }} days, 
+                                            {{ listing.time_difference.seconds|div:3600|floatformat:0 }} hours and 
+                                            {{ listing.time_difference.seconds|div:60|mod:60|floatformat:0 }} minutes ago.
+                                        {% endif %}
+                                    </p>
+                                </li>
+                                {% if not request.user.is_authenticated %}
+                                    <li>
+                                        <p>
+                                            <h6>To place a bid, please <a href="{% url "login" %}">login</a></h6>
+                                        </p>
+                                    <li>
+                                {% endif %}
                             </ul>
+                            {% if request.user.is_authenticated %}
+                                {% if listing.user_set.all and request.user in listing.user_set.all %}
+                                    <div class="card-footer">
+                                        <form class="unwatch2" action="{% url "view" listing.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                        <input type="submit" name="unwatch" class="btn btn-success" value="Delete From Watchlist">
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <div class="card-footer">
+                                        <form class="watch2" action="{% url "view" listing.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                            <input type="submit" name="watch" class="btn btn-success" value="Add To Watchlist">
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
                         </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="container bid_form_container">
+                            {% if request.user.is_authenticated %}
+                                <h3 class="place_bid">Place a Bid</h3>
+                                <form class="space bid" action="{% url "view" listing.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <em class="small">{{ form.amount_bid.label }}</em>
+                                    {{ form.amount_bid }}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    {% if listing.minimum_bid.amount is None %}
+                                        <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
+                                        <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
+                                        <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
+                                    {% else %}
+                                        <input type="hidden" name="start_bid" value="{{ listing.minimum_bid }}">
+                                        <input type="hidden" name="og_amount" value="{{ listing.minimum_bid.amount }}">
+                                        <input type="hidden" name="og_currency" value="{{ listing.minimum_bid.currency }}">
+                                    {% endif %}
+                                    <input type="submit" name="bid" class="btn btn-primary" value="Place Bid">
+                                </form>
+                            {% endif %}
+                        </div>
+                        {% if request.user.is_authenticated %}
+                            {% if request.user == listing.seller %}
+                                <div class="card-footer">
+                                    <form class="close" action="{% url "view" listing.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="turn_off" value="off">
+                                        <input type="submit" name="off" class="btn btn-secondary" value="Close the bid">
+                                    </form>
+                                </div>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-4">
-            <div class="container comment_container">
+            <div class="card">
+                <div class="card-body">
+                    {% if request.user.is_authenticated %}
+                        <form action="{% url 'view' listing.id %}" method="POST">
+                            {% csrf_token %}
+                            <h3>Leave a comment:</h3>
+                            {% load widget_tweaks %}
+                            {% render_field comment_form.comment class="comment_field" %}
+                            <br>
+                            <br>
+                            <input type="submit" name="leave_comment" class="btn btn-success" value="Submit">
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Comments</h2>
+                    <br>
+                    <ul>
+                        {% if not comments %}
+                            <div class="card-text">
+                                <h4><b>0 Comments</b></h4>
+                            </div>
+                        {% else %}
+                            {% for comment in comments %}
+                                <div class="card comment">
+                                    <div class="card-body">
+                                        <blockquote mb-0>
+                                            <p>{{ comment.comment }}</p>                           
+                                            <br>
+                                            <footer class="blockquote-footer"><cite title="Source Title">{{ comment.user.username }}</cite></footer>
+                                        </blockquote>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

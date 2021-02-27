@@ -9,6 +9,14 @@ class BidForm(forms.ModelForm):
     class Meta:
         model = Bid
         fields = ['amount_bid']
+        labels = {
+            'amount_bid': "Enter the amount you would like to bid and select your currency"
+        }
+    # Gets rid of colon after label
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        super(BidForm, self).__init__(*args, **kwargs)
+        
 
 class NewListingForm(forms.ModelForm):
     class Meta:
