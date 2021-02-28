@@ -1,0 +1,249 @@
+.title {
+    margin: 2vw;
+}
+
+body {
+    background-color: rgb(237, 237, 237);
+}
+
+#is_authenticated {
+    margin: 2vw;
+}
+
+.nav {
+    margin: 2vw;
+}
+
+.grey {
+    box-shadow: 0 0 2px 2px lightgrey;
+}
+
+#images {
+    padding: 10px;
+    margin: 10px;
+    border: 2px dotted red;
+    width: 80%;
+    margin-left: 0;
+}
+
+.card {
+    margin: 1vw;
+    box-shadow: 0 0 2px 2px grey;
+}
+
+.parent_image_container {
+    width: 18rem;
+    height: 20rem;
+}
+
+.image_container {
+    height: 20rem;
+    object-position: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 1vw;
+}
+
+.image_container img {
+    width: auto;
+    height: 100%;
+    margin: 0 auto;
+    padding: 2vw;
+    ;
+}
+
+p {
+    padding: 0;
+    margin: 0;
+}
+
+.card {
+    position: relative!important;
+}
+
+.card-link {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0.2rem;
+    color: black;
+    font-weight: bold;
+    background-color: rgb(241, 205, 42);
+    border-radius: 0.4vw;
+    padding: 0.5rem;
+    margin-right: 0.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.card-footer {
+    border: none;
+    background-color: rgba(255, 255, 255, 0);
+    ;
+}
+
+.card-link:hover {
+    background-color: rgb(187, 155, 12);
+    color: green;
+}
+
+.time {
+    color: grey;
+    margin-top: 2vh;
+    margin-bottom: 8vh;
+    font-size: small;
+    font-style: italic;
+}
+
+.index {
+    display: flex;
+}
+
+img {
+    margin: 2vw;
+}
+
+.white {}
+
+.bid {
+    margin-left: -5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    font-weight: bold;
+    background-color: rgb(237, 237, 237);
+    border: 1px solid rgb(237, 237, 237);
+    border-radius: 25px;
+}
+
+.message {
+    color: red;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.comment_field {
+    width: 100%;
+    padding: 0 0 200px 0;
+}
+
+.list_comment {
+    border: 1px solid black;
+    margin-left: -2vw;
+    margin-top: 0.5vh;
+}
+
+.no_image {
+    width: 90%;
+}
+
+.blue {
+    color: rgb(25, 76, 185);
+}
+
+.view img {
+    float: left;
+}
+
+.comment_container {
+    border: 1px solid grey;
+    margin: 10px;
+}
+
+.comment {
+    background-color: azure;
+}
+
+.list-unstyled {
+    margin: 20px;
+}
+
+.small {
+    color: grey;
+    font-size: small;
+}
+
+.space {
+    margin: 10px;
+}
+
+.bid_form_container {
+    display: inline;
+}
+
+.bid_form_container h3 {
+    text-align: left;
+    margin: 20px;
+}
+
+.bid_form_container h6 {
+    text-align: bottom;
+    margin-top: 90%;
+}
+
+.bid_form_container .bid {
+    margin-top: 2vh;
+    margin-left: 1vw;
+    padding: 20px;
+    border-radius: 2vw;
+}
+
+.view_info {
+    display: inline;
+}
+
+.list-unstyled form {
+    margin: 10px;
+    padding: 10px;
+    position: absolute;
+    right: 0;
+}
+
+.close {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.unwatch {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    left: 2rem;
+    padding: 0.4rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.watch {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    left: 4.2rem;
+    padding: 0.4rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.watch2 {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.unwatch2 {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}

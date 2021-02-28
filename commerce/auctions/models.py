@@ -13,12 +13,27 @@ class User(AbstractUser):
     def __str__(self):
         return f"ID{self.id}: {self.username} created at {self.time_created}"
 
-class Category(models.Model):
-    category = models.CharField(max_length=64)
-    def __str__(self):
-        return f"{self.category}"
-
 class Listing(models.Model):
+
+    CATEGORY_CHOICES = [
+        (None, ("---------")),
+        ("Antiques", ("Antiques")),
+        ("Baby", ("Baby")),
+        ("Books", ("Books")),
+        ("Business & Industrial", ("Business & Industrial")),
+        ("Clothing & Shoes", ("Clothing & Shoes")),
+        ("Collectibles", ("Collectibles")),
+        ("Consumer Electronics", ("Consumer Electronics")),
+        ("Crafts", ("Crafts")),
+        ("Dolls & Bears", ("Dolls & Bears")),
+        ("Entertainment: Games, Movies, Videos", ("Entertainment: Games, Movies, Videos")),
+        ("Home & Garden", ("Home & Garden")),  
+        ("Motors", ("Motors")),
+        ("Pet Supplies", ("Pet Supplies")),
+        ("Sporting Goods", ("Sporting Goods")),
+        ("Sporting Memorabilia", ("Sporting Memorabilia")),
+        ("Toys & Hobbies", ("Toys & Hobbies"))                    
+    ]
 
     # Creates a set of choices for the condition field
     CONDITION_CHOICES = [
@@ -39,8 +54,7 @@ class Listing(models.Model):
     minimum_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Minimum bid:", null=True, blank=True)
     highest_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Highest bid:", blank=True, null=True)
     current_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Current bid:", blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name="listings", verbose_name="Product category:")
-
+    category = models.CharField(max_length=128, verbose_name="Category:", choices = CATEGORY_CHOICES)
     # Creates a custom image path for each user via their id. The join function creates a path that links the media folder in the root directory to the user id in that 'instance' (current object) and saves it as the filename the user has uploaded
     def image_path(instance, filename):
         return os.path.join(settings.MEDIA_ROOT, f"{str(instance.seller.id)}/{filename}")

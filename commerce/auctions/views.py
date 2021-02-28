@@ -14,9 +14,13 @@ from .forms import *
 from .functions import *
 
 # Main page view
-def index(request):
+def index(request, cat_name=None):
     is_active()
-    listings = Listing.objects.filter(bid_active=True)
+    if cat_name is not None:
+        listings = Listing.objects.filter(category=cat_name)
+        listings = listings.filter(bid_active=True)
+    else:
+        listings = Listing.objects.filter(bid_active=True)
     when_created(listings)
     if request.method == "POST":
         listing = Listing.objects.get(id=request.POST["listing_id"])
@@ -370,16 +374,10 @@ def watchlist(request):
     })
 
 def categories(request):
-    categories = Category.objects.all().order_by('category')
-    return render(request, "auctions/categories.html", {
-        "categories": categories
-    })
-
-def cat_listings(request, id):
-    category = Category.objects.get(id=id)
     is_active()
-    listings = category.listings.filter(bid_active=True)
-    return render(request, "auctions/cat_listings.html", {
+    active_listings = Listing.objects.filter(bid_active=True)
+    listings = active_listings.values('name', 'category').distinct().order_by('category')
+    return render(request, "auctions/categories.html", {
         "listings": listings
     })
 

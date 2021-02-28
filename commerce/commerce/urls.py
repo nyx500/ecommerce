@@ -23,7 +23,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("auctions.urls"))
-]
+]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # DEBUG is set to True in the settings.py file
 if settings.DEBUG:
