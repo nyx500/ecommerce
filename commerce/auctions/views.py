@@ -16,31 +16,38 @@ from .functions import *
 # Main page view
 def index(request, cat_name=None):
     is_active()
-    if cat_name is not None:
-        listings = Listing.objects.filter(category=cat_name)
-        listings = listings.filter(bid_active=True)
-    else:
-        listings = Listing.objects.filter(bid_active=True)
-    when_created(listings)
     if request.method == "POST":
+        if cat_name is not None:
+            listings = Listing.objects.filter(category=cat_name)
+            listings = listings.filter(bid_active=True)
+            cat = True
+        else:
+            listings = Listing.objects.filter(bid_active=True)
+            cat = False
+        when_created(listings)
         listing = Listing.objects.get(id=request.POST["listing_id"])
         if 'watch' in request.POST:
             request.user.watched_listings.add(listing)
             request.user.save()
-            message = "You have added this listing to your watchlist"
-            return render (request, "auctions/view_listing.html", {
-                "listings": listings, "message": message
+            return render (request, "auctions/index.html", {
+                "listings": listings, "cat":cat, "cat_name": cat_name
             })
-        elif 'unwatch' in request.POST:
+        else:
             listing.user_set.remove(request.user)
-            message = "You have removed this listing to your watchlist"
-            return render (request, "auctions/view_listing.html", {
-                "message": message, "listings": listings
+            return render (request, "auctions/index.html", {
+                "listings": listings, "cat":cat, "cat_name":cat_name
             })
     else:
-        # Sets 'bid active' property for objects for which the current time is between their start bid and end bid times
+        if cat_name is not None:
+            listings = Listing.objects.filter(category=cat_name)
+            listings = listings.filter(bid_active=True)
+            cat = True
+        else:
+            listings = Listing.objects.filter(bid_active=True)
+            cat = False
+        when_created(listings)
         return render(request, "auctions/index.html", {
-            "listings": listings
+            "listings": listings, "cat":cat, "cat_name": cat_name
             })
 
 def create_listing(request):

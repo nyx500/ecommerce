@@ -1,10 +1,16 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h3>View Listings in Existing Categories</h3>
-    <ul>
-        {% for listing in listings %}
-            <li><a href="{% url 'index' cat_name=listing.category %}">{{ listing.category }}</a></li>
-        {% endfor %}
-    </ul>
+    <div class="container categories">
+        <div class="row">
+            <h3>Existing Categories</h3>
+        </div>
+        <div class="row">
+            <ul>
+                {% for listing in listings %}
+                    <li><a href="{% url 'index' cat_name=listing.category %}">{{ listing.category }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}

@@ -39,11 +39,6 @@ class NewListingForm(forms.ModelForm):
                 }
             )
         }
-    # Attributed to this tutorial on how to order model fields in Django: https://stackoverflow.com/questions/42811866/how-to-sort-a-choicefield-in-a-modelform
-    def __init__(self, *args, **kwargs):
-        # The super() function returns a temporary object of the superclass kind (here it is a NewListingForm) and then changes and saves it
-        super(NewListingForm, self).__init__(*args, **kwargs)
-        self.fields['category'].queryset = self.fields['category'].queryset.order_by('category')
         
 class CommentForm(forms.ModelForm):
     class Meta:

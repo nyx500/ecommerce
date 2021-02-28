@@ -2,12 +2,16 @@
 
 {% block body %}
     <h1 class="message">{{ message }}</h1>
-    <h2 class="title">Active Listings</h2>
+    {% if cat %}
+        <h2 class="title">Active Listings for <b class="blue">{{ cat_name }}</b></h2>
+    {% else %}
+        <h2 class="title">Active Listings</h2>
+    {% endif %}
     <div class="container index">
         <div class="row">
             {% for listing in listings %}
                 <div class="col-lg-4 d-flex align-items-stretch">
-                    <div class="card grey">
+                    <div class="card grey" style="width: 70rem;">
                         <div class="card-body">
                             <div class="container parent_image_container">
                                 <div class="container image_container">
@@ -42,19 +46,35 @@
                                     {{ listing.time_difference.seconds|div:60|mod:60|floatformat:0 }} minutes ago.
                                 {% endif %}
                             </p>
-                            {% if request.user.is_authenticated%}
+                            {% if request.user.is_authenticated %}
                                 <div class="inline d-flex justify-content-end">
-                                    {% if request.user in listing.user_set.all %}
-                                        <form action="{% url "view" listing.id %}" method="POST">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                            <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                    {% if cat %}
+                                        {% if request.user in listing.user_set.all %}
+                                            <form action="{% url "index" cat_name=listing.category %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                        {% else %}
+                                            <form action="{% url "index" cat_name=listing.category %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
+                                            </form>
+                                        {% endif %}
                                     {% else %}
-                                        <form action="{% url "view" listing.id %}" method="POST">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                            <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
-                                        </form>
+                                        {% if request.user in listing.user_set.all %}
+                                            <form action="{% url "index" %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                            </form>
+                                        {% else %}
+                                            <form action="{% url "index" %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
+                                            </form>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             {% endif %}
