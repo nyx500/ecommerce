@@ -94,40 +94,42 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="col-4">
-                        <div class="container bid_form_container">
+                    {% if listing.bid_active %}
+                        <div class="col-4">
+                            <div class="container bid_form_container">
+                                {% if request.user.is_authenticated %}
+                                    <h3 class="place_bid">Place a Bid</h3>
+                                    <form class="space bid" action="{% url "view" listing.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <em class="small">{{ form.amount_bid.label }}</em>
+                                        {{ form.amount_bid }}
+                                        <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                        {% if listing.minimum_bid.amount is None %}
+                                            <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
+                                            <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
+                                            <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
+                                        {% else %}
+                                            <input type="hidden" name="start_bid" value="{{ listing.minimum_bid }}">
+                                            <input type="hidden" name="og_amount" value="{{ listing.minimum_bid.amount }}">
+                                            <input type="hidden" name="og_currency" value="{{ listing.minimum_bid.currency }}">
+                                        {% endif %}
+                                        <input type="submit" name="bid" class="btn btn-primary" value="Place Bid">
+                                    </form>
+                                {% endif %}
+                            </div>
                             {% if request.user.is_authenticated %}
-                                <h3 class="place_bid">Place a Bid</h3>
-                                <form class="space bid" action="{% url "view" listing.id %}" method="POST">
-                                    {% csrf_token %}
-                                    <em class="small">{{ form.amount_bid.label }}</em>
-                                    {{ form.amount_bid }}
-                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                    {% if listing.minimum_bid.amount is None %}
-                                        <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
-                                        <input type="hidden" name="og_amount" value="{{ listing.starting_bid.amount }}">
-                                        <input type="hidden" name="og_currency" value="{{ listing.starting_bid.currency }}">
-                                    {% else %}
-                                        <input type="hidden" name="start_bid" value="{{ listing.minimum_bid }}">
-                                        <input type="hidden" name="og_amount" value="{{ listing.minimum_bid.amount }}">
-                                        <input type="hidden" name="og_currency" value="{{ listing.minimum_bid.currency }}">
-                                    {% endif %}
-                                    <input type="submit" name="bid" class="btn btn-primary" value="Place Bid">
-                                </form>
+                                {% if request.user == listing.seller %}
+                                    <div class="card-footer">
+                                        <form class="close" action="{% url "view" listing.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="turn_off" value="off">
+                                            <input type="submit" name="off" class="btn btn-secondary" value="Close the bid">
+                                        </form>
+                                    </div>
+                                {% endif %}
                             {% endif %}
                         </div>
-                        {% if request.user.is_authenticated %}
-                            {% if request.user == listing.seller %}
-                                <div class="card-footer">
-                                    <form class="close" action="{% url "view" listing.id %}" method="POST">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="turn_off" value="off">
-                                        <input type="submit" name="off" class="btn btn-secondary" value="Close the bid">
-                                    </form>
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
