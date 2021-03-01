@@ -21,6 +21,7 @@ OPENEXCHANGE_BASE_CURRENCY = "USD"
 client = OpenExchangeRatesClient('58d70ceb1f49488690d4e1d361a8e28f')
 currencies = client.currencies()
 currencies = [(k, v) for k, v in currencies.items() ]
+currencies.insert(0, (None, '----------'))
 CURRENCY_CHOICES = currencies
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
