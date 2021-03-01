@@ -8,7 +8,11 @@
 {% block body %}
     <div class="container justify-content-center">
         <h3>Create a New Listing</h3>
-        <h3>{{ message }}</h3>
+        {% if message %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
     </div>
     {% if form.errors %}
         {% for field in form %}

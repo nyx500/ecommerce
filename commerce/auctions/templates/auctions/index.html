@@ -18,14 +18,14 @@
                                     <a href="{% url 'view' listing.id %}">{% if listing.image %}
                                         <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
                                     {% elif listing.image_url %}
-                                        <a href="{% url 'view' listing.id %}f"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
+                                        <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
                                     {% else %}
                                         <img class="card-img-top" src="/media/no_img.svg" alt="No image">
                                     {% endif %}</a>
                                 </div>
                             </div>
                             <h5 class="card-title"><a href="{% url 'view' listing.id %}">{{ listing.name }}</a></h5>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ listing.condition }}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Product condition: {{ listing.condition }}</h6>
                             <p class="card-text">{{ listing.description }}</p>
                             {% if listing.minimum_bid == None %}
                                 <p class="card-text current_bid"><b>Current price: </b><b class="blue">No bids made yet</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>
