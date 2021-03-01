@@ -14,40 +14,43 @@ from .forms import *
 from .functions import *
 
 # Main page view
-def index(request, cat_name=None):
+def index(request, cat_name=None, user_id=None):
+
     is_active()
-    if request.method == "POST":
-        if cat_name is not None:
-            listings = Listing.objects.filter(category=cat_name)
-            listings = listings.filter(bid_active=True)
+    listings = Listing.objects.filter(bid_active=True)
+    watch = False
+    cat = False
+    if user_id is None:
+        if cat_name:
+            listings = listings.filter(category=cat_name)
             cat = True
-        else:
-            listings = Listing.objects.filter(bid_active=True)
-            cat = False
-        when_created(listings)
+    else:
+        watch = True
+        listings = User.objects.get(id=user_id).watched_listings.all()
+
+    if request.method == "POST":
         listing = Listing.objects.get(id=request.POST["listing_id"])
         if 'watch' in request.POST:
             request.user.watched_listings.add(listing)
             request.user.save()
+            if watch == True:
+                listings = User.objects.get(id=user_id).watched_listings.all()
             return render (request, "auctions/index.html", {
-                "listings": listings, "cat":cat, "cat_name": cat_name
+                "listings": listings, "cat":cat, "cat_name": cat_name, "watch": watch
             })
         else:
             listing.user_set.remove(request.user)
+            if watch == True:
+                listings = User.objects.get(id=user_id).watched_listings.all()
             return render (request, "auctions/index.html", {
-                "listings": listings, "cat":cat, "cat_name":cat_name
+                "listings": listings, "cat":cat, "cat_name":cat_name, "watch": watch
             })
     else:
-        if cat_name is not None:
-            listings = Listing.objects.filter(category=cat_name)
-            listings = listings.filter(bid_active=True)
-            cat = True
-        else:
-            listings = Listing.objects.filter(bid_active=True)
-            cat = False
         when_created(listings)
+        if watch == True:
+                listings = User.objects.get(id=user_id).watched_listings.all()
         return render(request, "auctions/index.html", {
-            "listings": listings, "cat":cat, "cat_name": cat_name
+            "listings": listings, "cat":cat, "cat_name": cat_name, "watch": watch
             })
 
 def create_listing(request):

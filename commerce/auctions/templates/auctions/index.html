@@ -18,7 +18,7 @@
                                     <a href="{% url 'view' listing.id %}">{% if listing.image %}
                                         <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
                                     {% elif listing.image_url %}
-                                        <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
+                                        <a href="{% url 'view' listing.id %}f"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
                                     {% else %}
                                         <img class="card-img-top" src="/media/no_img.svg" alt="No image">
                                     {% endif %}</a>
@@ -48,7 +48,7 @@
                             </p>
                             {% if request.user.is_authenticated %}
                                 <div class="inline d-flex justify-content-end">
-                                    {% if cat %}
+                                    {% if cat == True %}
                                         {% if request.user in listing.user_set.all %}
                                             <form action="{% url "index" cat_name=listing.category %}" method="POST">
                                                 {% csrf_token %}
@@ -56,6 +56,20 @@
                                                 <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
                                         {% else %}
                                             <form action="{% url "index" cat_name=listing.category %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
+                                            </form>
+                                        {% endif %}
+                                    {% elif watch == True %}
+                                        {% if request.user in listing.user_set.all %}
+                                            <form action="{% url "index" user_id=request.user.id %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                            </form>
+                                        {% else %}
+                                            <form action="{% url "index" user_id=request.user.id %}" method="POST">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="listing_id" value="{{ listing.id }}">
                                                 <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">

@@ -4,10 +4,12 @@
          <div class="container listing justify-content-center">
             <div class="row">
                 <div class="col-3">
-                    {% if listing.image.url == None %}
-                        <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
-                    {% else %}
+                    {% if listing.image %}
                         <img src="{{ listing.image.url }}" style="width: 20vw;" alt="Broken image">
+                    {% elif listing.image_url %}
+                        <img src="{{ listing.image_url }}" alt="No image" style="width: 10vw;">
+                    {% else %}
+                        <img src="/media/no_img.svg" alt="No image" style="width: 10vw;">
                     {% endif %}
                 </div>
                 <div class="col-6">
