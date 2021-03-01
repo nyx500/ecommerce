@@ -1,8 +1,15 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2 class="message">{{ message }}</h2>
-    <h2 class="message">{{ winner }}</h2>
+    {% if message %}
+        <div class="alert alert-info" role="alert">
+        {{ message }}
+        </div>
+    {% elif winner %}
+        <div class="alert alert-success" role="alert">
+        {{ winner }}
+        </div>
+    {% endif %}
     <div class="row">
         <div class="col-8">
             <div class="card">
@@ -26,14 +33,14 @@
                                 <li>
                                     <p class="space">
                                         {% if listing.minimum_bid  %}
-                                            <h5>Minimum Bid: {{ listing.starting_bid }}
+                                            Minimum Bid: <b class="blue">{{ listing.minimum_bid }}</b>
                                         {% endif %}
                                     </p>
                                 </li>
                                 <li>
                                     <p class="space">
                                     {% if listing.current_bid %}
-                                        Current Price: <b class="blue">{{ listing.current_bid }}</b>
+                                        Current Bid: <b class="blue">{{ listing.current_bid }}</b>
                                     {% else %}
                                         Current Price: <b class="blue">No bids</b>
                                     {% endif %}

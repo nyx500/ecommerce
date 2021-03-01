@@ -174,7 +174,7 @@ def view_listing(request, id):
     add_active(listing, listing.start_bid_time, listing.end_bid_time)
     winner = ""
     if request.user.is_authenticated and listing.highest_bid is not None:
-        highest_bidder = Bid.objects.all().order_by('-amount_bid')[0].bidder
+        highest_bidder = listing.bids.all().order_by('-amount_bid')[0].bidder
         if request.user == highest_bidder:
                 user_final_bid = Bid.objects.filter(bidder=highest_bidder).order_by('-time_bid')[0]
                 if listing.bid_active == False:
@@ -223,7 +223,7 @@ def view_listing(request, id):
                         last_bid = Bid.objects.all().order_by('-time_bid')[0]
                 else:
                     last_bid = ""
-                message = f"Thank you for submitting a comment."
+                message = f"Thank you for submitting your comment!"
                 return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
