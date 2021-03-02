@@ -197,111 +197,97 @@ def view_listing(request, id):
                 "message": message, "form": BidForm(),
                 "listing": listing, "winner": winner, "comment_form": CommentForm(), "comments": comments
             })
+
+        # Logic for if the user clicked on the form to remove an item from their watchlist
         elif 'unwatch' in request.POST:
             listing.user_set.remove(request.user)
             message = "You have removed this listing from your watchlist!"
             return render (request, "auctions/view_listing.html", {
                 "message": message, "form": BidForm(), "listing": listing, "winner": winner, "comment_form": CommentForm(), "comments": comments
             })
+
+        # Logic for if the user clicked on the form to add a comment
         elif 'leave_comment' in request.POST:
-            watchers =  listing.user_set.all()
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
-                comment = comment_form.cleaned_data['comment']
                 new_comment = Comment()
-                new_comment.comment = comment
+                new_comment.comment = comment_form.cleaned_data['comment']
                 new_comment.user = request.user
                 new_comment.product = listing
-                new_comment.save()
-                if listing.highest_bid is not None:
-                        last_bid = Bid.objects.all().order_by('-time_bid')[0]
-                else:
-                    last_bid = ""
+                new_comment.save()               
                 message = f"Thank you for submitting your comment!"
                 return render(request, "auctions/view_listing.html", {
-                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
-                        })
+                            "listing": listing, "form": BidForm(), "message": message, "winner": winner, "comment_form": CommentForm(), "comments": comments
+                        })            
             else:
-                if listing.highest_bid is not None:
-                        last_bid = Bid.objects.all().order_by('-time_bid')[0]
-                else:
-                    last_bid = ""
-                message = f"Form data is invalid. Errors: {comment_form.errors}"
+                error = f"Form data is invalid. Errors: {comment_form.errors}"
                 return render(request, "auctions/view_listing.html", {
-                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
+                            "listing": listing, "form": BidForm(), "error": error, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
-
+        
+        # Logic for if user who made the listing decides to close bidding
         elif 'off' in request.POST:
-            current_listing = Listing.objects.get(id=id)
-            UTC = pytz.utc
-            current_listing.end_bid_time = datetime.datetime.now(UTC)
-            current_listing.save()
+            listing.end_bid_time = datetime.datetime.now(pytz.utc)
+            listing.save()
             return HttpResponseRedirect(reverse('index'))
 
+        # Logic for all bidding possibilities
         else:
+
             form = BidForm(request.POST)
-            listing = Listing.objects.get(id=request.POST["listing_id"])
+            
             if form.is_valid():
-                watchers = listing.user_set.all()
-                # Money object used for user's bid
                 amount = form.cleaned_data["amount_bid"]
-                # Listing of the object bid on
-                listing_id = request.POST["listing_id"]
-                # Amount of starting/minimum bid price
                 og_amount = request.POST["og_amount"]
-                # The currency of the starting/minimum bid price
                 og_currency = request.POST["og_currency"]
-                # User's bid is converted into a money object with the same currency as the listing's currency
-                amount = convert_money(amount.amount, amount.currency, og_currency)
-                if Listing.objects.get(id=listing_id).minimum_bid is None:
-                    strt_bid = Listing.objects.get(id=listing_id).starting_bid
+                amount = convert_money(amount.amount, amount.currency, listing.starting_bid.currency)
+                if listing.minimum_bid is None:
+                    strt_bid = listing.starting_bid
                 else:
-                    strt_bid = Listing.objects.get(id=listing_id).minimum_bid
-                # Checks if the bidder has matched the minimum bid amount
+                    strt_bid = listing.minimum_bid
+
+                # Logic for if the amount bid fails to meet the minimum bidding amount
                 if amount < strt_bid:
-                    # Returns a message telling the bidder that his amount has not matched the minimum bid
-                    message = f"Error: Please match the starting/minimum bid of {og_amount}{og_currency}"
-                    if listing.highest_bid is not None:
-                        last_bid = Bid.objects.all().order_by('-time_bid')[0]
-                    else:
-                        last_bid = None
+                    error = f"Error: Please match the starting/minimum bid of {strt_bid}"
                     return render(request, "auctions/view_listing.html", {
-                                "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
-                            })
+                            "listing": listing, "form": BidForm(), "error": error, "winner": winner, "comment_form": CommentForm(), "comments": comments
+                        })
                 else:
-                    # Increments the minimum bid amount for that listing by 25% of the original price every time a bid is made
-                    listing = Listing.objects.get(id=id)
+                    # Logic for if there has already been a higher bid than the user's current bid
                     if listing.highest_bid is not None and amount <= listing.highest_bid:
-                        # Increments the minimum bidding amount by a quarter of the original starting price
-                        new_min_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25) * listing.increment)
-                        listing.minimum_bid = new_min_bid
+                        # Automatically bids to the highest bidder and then increments the minimum bidding amount by an increment which starts at a quarter of the original starting price but increases by one every time a *successful* bid is placed on the listing
+                        listing.minimum_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25) * listing.increment)
                         listing.save()
                         # Finds highest bid from bid objects
                         highest_bid = Bid.objects.filter(listing=listing).order_by('-amount_bid')[0]
 
+                        # Places the loser's bid
                         lose = Bid()
                         lose.bidder = request.user
                         lose.listing=listing
                         lose.amount_bid = amount
                         lose.save()
                         
-                        if highest_bid.amount_bid > new_min_bid:
+                        # If the automatic bid is smaller than the highest bidder's highest bid, a bid is automatically placed on the highest bidder's behalf
+                        if highest_bid.amount_bid > listing.minimum_bid:
                             # Creates new bid for previous higher bidder
                             win = Bid()
                             win.bidder = highest_bid.bidder
                             win.listing = listing
-                            win.amount_bid = new_min_bid
+                            win.amount_bid = listing.minimum_bid
                             win.save()
                         
                         listing.current_bid = Bid.objects.all().order_by('-time_bid')[0].amount_bid
+                        # Updates the minimum bid once again
                         listing.minimum_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25) * listing.increment)
                         listing.save()
 
-                        message = f"Sorry! Unfortunately your bid of {amount} was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder.username}. {new_min_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
-                        last_bid = Bid.objects.all().order_by('-time_bid')[0]
+                        message = f"Sorry! Unfortunately your bid of {amount} was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder.username}. {listing.current_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
+                       
                         return render(request, "auctions/view_listing.html", {
-                            "listing": listing, "form": BidForm(), "message": message, "last_bid": last_bid, "watchers":watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
+                            "listing": listing, "form": BidForm(), "message": message, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
+
                     elif listing.highest_bid is None:
                         obj = Bid()
                         obj.bidder = request.user
