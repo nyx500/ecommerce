@@ -13,6 +13,7 @@ class User(AbstractUser):
     def __str__(self):
         return f"ID{self.id}: {self.username} created at {self.time_created}"
 
+
 class Listing(models.Model):
 
     CATEGORY_CHOICES = [
@@ -35,7 +36,6 @@ class Listing(models.Model):
         ("Toys & Hobbies", ("Toys & Hobbies"))                    
     ]
 
-    # Creates a set of choices for the condition field
     CONDITION_CHOICES = [
         (None, ("---------")),
         ("Antique", ("Antique")),
@@ -55,6 +55,7 @@ class Listing(models.Model):
     highest_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Highest bid:", blank=True, null=True)
     current_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Current bid:", blank=True, null=True)
     category = models.CharField(max_length=128, verbose_name="Category:", choices = CATEGORY_CHOICES)
+    
     # Creates a custom image path for each user via their id. The join function creates a path that links the media folder in the root directory to the user id in that 'instance' (current object) and saves it as the filename the user has uploaded
     def image_path(instance, filename):
         return os.path.join(settings.MEDIA_ROOT, f"{str(instance.seller.id)}/{filename}")
@@ -65,15 +66,16 @@ class Listing(models.Model):
     list_countries = list(countries)
     for index, country in enumerate(list_countries):
         list_countries[index] = country
-    list_countries.insert(0, ("Africa", "Africa"))
-    list_countries.insert(0, ("Asia", "Asia"))
-    list_countries.insert(0, ("Australia and New Zealand", "Australia & NZ"))
-    list_countries.insert(0, ("North America", "North America"))
+    list_countries.insert(0, (None, '---------') )
     list_countries.insert(0, ("South America", "South America"))
+    list_countries.insert(0, ("North America", "North America"))
     list_countries.insert(0, ("Europe", "Europe"))
+    list_countries.insert(0, ("Australia and New Zealand", "Australia & NZ"))
+    list_countries.insert(0, ("Asia", "Asia"))
+    list_countries.insert(0, ("Africa", "Africa"))
     list_countries.insert(0, (None, '---------') )
     list_countries.insert(0, ("Worldwide", "Worldwide"))
-    list_countries.insert(0, (None, '---------') )
+
     COUNTRY_CHOICES = list_countries
 
     location = CountryField(verbose_name="Country the product is being sent from:")
@@ -99,6 +101,7 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"Bid {self.id} of {self.amount_bid} on {self.listing.name} by user {self.bidder.username}"
+
 
 class Comment(models.Model):
     product = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
