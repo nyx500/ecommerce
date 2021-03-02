@@ -13,9 +13,11 @@ from django_prices_openexchangerates.tasks import extract_rate, get_latest_excha
 from .forms import *
 from .functions import *
 
+
 # Main page view
 def index(request, cat_name=None, user_id=None):
 
+    # Checks which bids are active and which listings to return depending on url parameters (cat_name, user_id)
     is_active()
     listings = Listing.objects.filter(bid_active=True)
     watch = False
@@ -27,31 +29,28 @@ def index(request, cat_name=None, user_id=None):
     else:
         watch = True
         listings = User.objects.get(id=user_id).watched_listings.all()
+    when_created(listings)
 
     if request.method == "POST":
         listing = Listing.objects.get(id=request.POST["listing_id"])
+
+        # Checks if user has added/deleted an item to their watchlist and updates their watchlist.
         if 'watch' in request.POST:
             request.user.watched_listings.add(listing)
             request.user.save()
-            if watch == True:
-                listings = User.objects.get(id=user_id).watched_listings.all()
             return render (request, "auctions/index.html", {
                 "listings": listings, "cat":cat, "cat_name": cat_name, "watch": watch
             })
         else:
             listing.user_set.remove(request.user)
-            if watch == True:
-                listings = User.objects.get(id=user_id).watched_listings.all()
             return render (request, "auctions/index.html", {
                 "listings": listings, "cat":cat, "cat_name":cat_name, "watch": watch
             })
     else:
-        when_created(listings)
-        if watch == True:
-                listings = User.objects.get(id=user_id).watched_listings.all()
         return render(request, "auctions/index.html", {
             "listings": listings, "cat":cat, "cat_name": cat_name, "watch": watch
             })
+
 
 def create_listing(request):
     if request.method == "POST":
