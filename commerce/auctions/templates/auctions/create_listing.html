@@ -8,9 +8,17 @@
 {% block body %}
     <div class="container justify-content-center">
         <h3>Create a New Listing</h3>
-        {% if image_error %}
+        <br>    
+        {% if error %}
             <div class="alert alert-danger" role="alert">
-                <b>Error:</b> {{ image_error }}
+                <b>Error:</b> {{ error }}
+            </div>
+        {% elif message %}
+            <div class="alert alert-success" role="alert">
+                <b>Success:</b> {{ message }} <br><br>
+                <div class="container">
+                    <a href="{% url 'index' %}"><button class="btn btn-link">Main Page</button></a>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -74,9 +82,9 @@
                 </div>
             </div>
             <div id="images">
-                {% if image_error %}
+                {% if error == "You must either 1) upload an image OR 2) enter an image URL, but not both!" %}
                     <div class="alert alert-danger" role="alert">
-                        <b>Error:</b> {{ image_error }}
+                        <b>Error:</b> {{ error }}
                     </div>
                 {% endif %}
                 <div class="row form-group image-form">

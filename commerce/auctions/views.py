@@ -51,7 +51,7 @@ def index(request, cat_name=None, user_id=None):
             "listings": listings, "cat":cat, "cat_name": cat_name, "watch": watch
             })
 
-
+@login_required
 def create_listing(request):
 
     if request.method == "POST":
@@ -61,9 +61,9 @@ def create_listing(request):
         if form.is_valid():
             # If user input both image upload and image URL, return an error message
             if form.cleaned_data["image"] and form.cleaned_data["image_url"]:
-                image_error = "You must either 1) upload an image OR 2) enter an image URL, but not both!"
+                error = "You must either 1) upload an image OR 2) enter an image URL, but not both!"
                 return render(request, "auctions/create_listing.html", {
-                "form": NewListingForm(), "image_error": image_error
+                "form": NewListingForm(), "error": error
             })
             
             # Converts the user's localised time information all to UTC time
@@ -89,27 +89,26 @@ def create_listing(request):
             obj.shipping_cost= form.cleaned_data["shipping_cost"]
             obj.location= form.cleaned_data["location"]
             obj.save()
+
+            # Checks if new listing is active and updates it
             add_active(obj, start_time, end_time)
+
+            message = f"Thank you for creating a listing for {obj.name}"
             return render(request, "auctions/create_listing.html", {
-            "form": NewListingForm(), "message1": "Works: check admin class"
+            "form": NewListingForm(), "message": message
             })
+
         else:
-            form = NewListingForm()
-            message = "Doesn't work"
+            error = f"Invalid Form - {form.errors}"
             return render(request, "auctions/create_listing.html", {
-                "form": form, "message": message
+                "form": NewListingForm(), "error": error
             })
+
     else:
-        if request.user.is_authenticated:
-            form = NewListingForm()
-            username = User.id
-            
-            return render(request, "auctions/create_listing.html", {
-                "form": form
-            })
-        # In case someone types the route in the URL bar when they are not logged in
-        else:
-            return render("auctions/login.html")
+        return render(request, "auctions/create_listing.html", {
+            "form": NewListingForm()
+        })
+
 
 def login_view(request):
     if request.method == "POST":
@@ -161,48 +160,48 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
 def view_listing(request, id):
+
+    # Gets the listing as a list of one item and calculates how long ago the listing was created
     listing = Listing.objects.filter(id=id)
     when_created(listing)
+    
+    # Gets the listing as a single object
     listing = Listing.objects.get(id=id)
+
+    # Gets all the comments for that listing
     comments = listing.comments.all().order_by('-time_submitted')
+
+    # Updates active status of bid based on current time
     add_active(listing, listing.start_bid_time, listing.end_bid_time)
+
+    # Checks if currently logged-in user has won the bid on this listing
     winner = ""
     if request.user.is_authenticated and listing.highest_bid is not None:
         highest_bidder = listing.bids.all().order_by('-amount_bid')[0].bidder
         if request.user == highest_bidder:
-                user_final_bid = Bid.objects.filter(bidder=highest_bidder).order_by('-time_bid')[0]
-                if listing.bid_active == False:
-                    winner = f"You have won this bid at {user_final_bid.amount_bid}!"
+            # Checks if the bid is open or closed
+            if listing.bid_active == False:
+                winner = f"You have won this bid at {Bid.objects.filter(bidder=highest_bidder).order_by('-time_bid')[0].amount_bid}!"
+
     if request.method == "POST":
+
+        # Logic for if the user clicked on the form to add an item to their watchlist
         if 'watch' in request.POST:
-            current_listing = Listing.objects.get(id=request.POST["listing_id"])
-            watchers = current_listing.user_set.all()
-            current_user = request.user
-            current_user.watched_listings.add(current_listing)
-            current_user.save()
-            message = "You have added this listing to your watchlist"
-            if current_listing.highest_bid is not None:
-                last_bid = Bid.objects.all().order_by('-time_bid')[0]
-            else:
-                last_bid = ""
+            watchers = listing.user_set.all()
+            request.user.watched_listings.add(listing)
+            request.user.save()
+            message = "You have added this listing to your watchlist!"
             return render (request, "auctions/view_listing.html", {
-                "message": message, "form": BidForm(), "last_bid": last_bid,
-                "listing": current_listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
+                "message": message, "form": BidForm(),
+                "listing": listing, "winner": winner, "comment_form": CommentForm(), "comments": comments
             })
         elif 'unwatch' in request.POST:
-            current_listing = Listing.objects.get(id=request.POST["listing_id"])
-            watchers = current_listing.user_set.all()
-            current_user = request.user
-            current_listing.user_set.remove(current_user)
-            message = "You have removed this listing to your watchlist"
-            if current_listing.highest_bid is not None:
-                last_bid = Bid.objects.all().order_by('-time_bid')[0]
-            else:
-                last_bid = ""
+            listing.user_set.remove(request.user)
+            message = "You have removed this listing from your watchlist!"
             return render (request, "auctions/view_listing.html", {
-                "message": message, "form": BidForm(), "last_bid": last_bid,
-                "listing": current_listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
+                "message": message, "form": BidForm(), "listing": listing, "winner": winner, "comment_form": CommentForm(), "comments": comments
             })
         elif 'leave_comment' in request.POST:
             watchers =  listing.user_set.all()
@@ -370,13 +369,6 @@ def view_listing(request, id):
             "listing": listing, "watchers": watchers, "winner": winner, "comment_form": CommentForm(), "comments": comments
         })
 
-@login_required
-def watchlist(request):
-    user = request.user
-    watchlist = Listing.objects.filter(user__id=user.id)
-    return render(request, "auctions/watchlist.html", {
-        "watchlist": watchlist
-    })
 
 def categories(request):
     is_active()
