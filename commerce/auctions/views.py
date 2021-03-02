@@ -53,28 +53,24 @@ def index(request, cat_name=None, user_id=None):
 
 
 def create_listing(request):
+
     if request.method == "POST":
+
         form = NewListingForm(request.POST, request.FILES)
-        # Server-side check validating the form
+
         if form.is_valid():
-
+            # If user input both image upload and image URL, return an error message
             if form.cleaned_data["image"] and form.cleaned_data["image_url"]:
+                image_error = "You must either 1) upload an image OR 2) enter an image URL, but not both!"
                 return render(request, "auctions/create_listing.html", {
-                "form": NewListingForm(), "timezones": pytz.common_timezones, "message": "Error: you must either 1) upload an image OR 2) enter an image URL, but not both."
+                "form": NewListingForm(), "image_error": image_error
             })
-
-            # Changed django.utils file code, so that the user data returns a naive datetime object that I am manipulating manually to store the data in the user's local time, for easier comparison purposes
-            time_zone = form.cleaned_data["time_zone"]
-
-            # Calculates difference between the user's local time and the time in UTC as a timedelta object
-            utc_offset = datetime.datetime.now(time_zone).utcoffset()
-
-            # Makes naive times aware
-            start_time = form.cleaned_data["start_bid_time"] - utc_offset
-            end_time = form.cleaned_data["end_bid_time"] - utc_offset
             
-            UTC = pytz.utc
-            current_time = datetime.datetime.now(UTC)
+            # Converts the user's localised time information all to UTC time
+            time_zone = form.cleaned_data["time_zone"]
+            start_time = convert_to_utc(time_zone, form.cleaned_data["start_bid_time"])
+            end_time = convert_to_utc(time_zone, form.cleaned_data["end_bid_time"])
+
             obj = Listing()
             obj.seller = request.user
             obj.name = form.cleaned_data["name"]
@@ -95,7 +91,7 @@ def create_listing(request):
             obj.save()
             add_active(obj, start_time, end_time)
             return render(request, "auctions/create_listing.html", {
-            "form": NewListingForm(), "message1": "Works: check admin class", "start_time": start_time, "end_time": end_time, "current_time": current_time, "utc_offset": utc_offset
+            "form": NewListingForm(), "message1": "Works: check admin class"
             })
         else:
             form = NewListingForm()
@@ -109,7 +105,7 @@ def create_listing(request):
             username = User.id
             
             return render(request, "auctions/create_listing.html", {
-                "form": form, "timezones": pytz.common_timezones
+                "form": form
             })
         # In case someone types the route in the URL bar when they are not logged in
         else:

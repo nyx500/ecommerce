@@ -26,3 +26,9 @@ def when_created(listings):
     for listing in listings:
         listing.time_difference = datetime.datetime.now(UTC) - listing.time_listed
         listing.save()
+
+# Converts user's local time to UTC time
+def convert_to_utc(time_zone, time):
+    utc_offset = datetime.datetime.now(time_zone).utcoffset()
+    converted_time = time - utc_offset
+    return converted_time
