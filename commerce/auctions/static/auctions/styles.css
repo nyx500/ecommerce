@@ -262,4 +262,6 @@ img {
 .alert {
     object-fit: contain;
     padding: 20px;
+    width: 95%;
+    margin: auto;
 }
