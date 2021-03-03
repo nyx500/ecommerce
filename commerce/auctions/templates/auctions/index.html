@@ -1,39 +1,50 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h1 class="message">{{ message }}</h1>
-    {% if cat %}
-        <h2 class="title">Active Listings for <b class="blue">{{ cat_name }}</b></h2>
-    {% else %}
-        <h2 class="title">Active Listings</h2>
-    {% endif %}
+    <div class="container">
+        {% if cat %}
+            <h2>Active Listings for <b>{{ cat_name }}</b></h2>
+        {% else %}
+            <h2>Active Listings</h2>
+        {% endif %}
+    </div>
     <div class="container index">
         <div class="row">
             {% for listing in listings %}
                 <div class="col-lg-4 d-flex align-items-stretch">
-                    <div class="card grey" style="width: 70rem;">
+                    <div class="card" style="width: 70rem;">
                         <div class="card-body">
-                            <div class="container parent_image_container">
-                                <div class="container image_container">
-                                    <a href="{% url 'view' listing.id %}">{% if listing.image %}
-                                        <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
-                                    {% elif listing.image_url %}
-                                        <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
-                                    {% else %}
-                                        <img class="card-img-top" src="/media/no_img.svg" alt="No image">
-                                    {% endif %}</a>
-                                </div>
+                            <div class="container">
+                                {% if listing.image %}
+                                    <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
+                                {% elif listing.image_url %}
+                                    <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
+                                {% else %}
+                                    <img class="card-img-top" src="/media/no_img.svg" alt="No image">
+                                {% endif %}</a>
                             </div>
-                            <h5 class="card-title"><a href="{% url 'view' listing.id %}">{{ listing.name }}</a></h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Product condition: {{ listing.condition }}</h6>
-                            <p class="card-text">{{ listing.description }}</p>
-                            {% if listing.minimum_bid == None %}
-                                <p class="card-text current_bid"><b>Current price: </b><b class="blue">No bids made yet</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>
-                            {% else %}
-                                <p class="card-text current_bid"><b>Current price: </b><b class="blue">{{ listing.current_bid }}</b> <br> <b>Starting price: {{ listing.starting_bid }}</b></p>
-                            {% endif %}
-                            <p class="card-text">{{ listing.shipping_cost }} shipping</p>
-                            <p class="time"> 
+                            <h5 class="card-title">
+                                <a href="{% url 'view' listing.id %}">{{ listing.name }}</a>
+                            </h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                Product condition: {{ listing.condition }}
+                            </h6>
+                            <p class="card-text">
+                                {{ listing.description }}
+                            </p>
+                            <p class="card-text">
+                                {% if listing.minimum_bid == None %}
+                                    <b>Current price: </b><b class="blue">No bids made yet</b>
+                                {% else %}
+                                    <b>Current price: </b><b class="blue">{{ listing.current_bid }}</b>
+                                {% endif %}
+                                <br>
+                                <b>Starting price: {{ listing.starting_bid }}</b>
+                            </p>
+                            <p class="card-text">
+                                {{ listing.shipping_cost }} shipping
+                            </p>
+                            <p class="card-text time"> 
                                 {% load mathfilters %}
                                 {% if listing.time_difference.days == 0 %}
                                     Created {{ listing.time_difference.seconds|div:3600|floatformat:0 }} hours and 
@@ -46,53 +57,60 @@
                                     {{ listing.time_difference.seconds|div:60|mod:60|floatformat:0 }} minutes ago.
                                 {% endif %}
                             </p>
-                            {% if request.user.is_authenticated %}
-                                <div class="inline d-flex justify-content-end">
-                                    {% if cat == True %}
-                                        {% if request.user in listing.user_set.all %}
-                                            <form action="{% url "index" cat_name=listing.category %}" method="POST">
+                            <div class="d-flex justify-content-start">
+                                <div class="p-1">
+                                    {% if request.user.is_authenticated %}
+                                        {% if cat == True %}
+                                            {% if request.user in listing.user_set.all %}
+                                                <form action="{% url "index" cat_name=listing.category %}" method="POST">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                                <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                                    <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                                </form>
+                                            {% else %}
+                                                <form action="{% url "index" cat_name=listing.category %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                    <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
+                                                </form>
+                                            {% endif %}
+                                        {% elif watch == True %}
+                                            {% if request.user in listing.user_set.all %}
+                                                <form action="{% url "index" user_id=request.user.id %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                    <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                                </form>
+                                            {% else %}
+                                                <form action="{% url "index" user_id=request.user.id %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                        <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
+                                                </form>
+                                            {% endif %}
                                         {% else %}
-                                            <form action="{% url "index" cat_name=listing.category %}" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                                <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
-                                            </form>
-                                        {% endif %}
-                                    {% elif watch == True %}
-                                        {% if request.user in listing.user_set.all %}
-                                            <form action="{% url "index" user_id=request.user.id %}" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                                <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
-                                            </form>
-                                        {% else %}
-                                            <form action="{% url "index" user_id=request.user.id %}" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                                <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
-                                            </form>
-                                        {% endif %}
-                                    {% else %}
-                                        {% if request.user in listing.user_set.all %}
-                                            <form action="{% url "index" %}" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                                <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
-                                            </form>
-                                        {% else %}
-                                            <form action="{% url "index" %}" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                                                <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
-                                            </form>
+                                            {% if request.user in listing.user_set.all %}
+                                                <form action="{% url "index" %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                        <input type="submit" name="unwatch" class="btn btn-success unwatch" value="Delete From Watchlist">
+                                                </form>
+                                            {% else %}
+                                                <form action="{% url "index" %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                                        <input type="submit" name="watch" class="btn btn-success watch" value="Add To Watchlist">
+                                                </form>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </div>
-                            {% endif %}
-                            <a class="inline card-link" href="{% url 'view' listing.id %}">View Listing</a>
+                                <div class="p-1">
+                                    <a href="{% url 'view' listing.id %}">
+                                        <button class="btn btn-warning"><b>View Listing</b></button>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
