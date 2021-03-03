@@ -360,8 +360,7 @@ def view_listing(request, id):
 
 def categories(request):
     is_active()
-    active_listings = Listing.objects.filter(bid_active=True)
-    listings = active_listings.values('name', 'category').distinct().order_by('category')
+    listings = Listing.objects.filter(bid_active=True).values('category').distinct().order_by('category')
     return render(request, "auctions/categories.html", {
         "listings": listings
     })
