@@ -1,14 +1,12 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <div class="container">
-        {% if cat %}
-            <h2>Active Listings for <b>{{ cat_name }}</b></h2>
-        {% else %}
-            <h2>Active Listings</h2>
-        {% endif %}
-    </div>
-    <div class="container index">
+    {% if cat %}
+        <h2>Active Listings for <b>{{ cat_name }}</b></h2>
+    {% else %}
+        <h2>Active Listings</h2>
+    {% endif %}
+    <div class="container-fluid index">
         <div class="row">
             {% for listing in listings %}
                 <div class="col-lg-4 d-flex align-items-stretch">
@@ -16,11 +14,12 @@
                         <div class="card-body">
                             <div class="container">
                                 {% if listing.image %}
-                                    <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image">
+                                    <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image.url }}" alt="Broken image"></a>
                                 {% elif listing.image_url %}
-                                    <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image">
+                                    <a href="{% url 'view' listing.id %}"><img class="card-img-top" src="{{ listing.image_url }}" alt="Broken image"></a>
                                 {% else %}
-                                    <img class="card-img-top" src="/media/no_img.svg" alt="No image">
+                                    <a href="{% url 'view' listing.id %}">
+                                    <img class="card-img-top" src="/media/no_img.svg" alt="No image"></a>
                                 {% endif %}</a>
                             </div>
                             <h5 class="card-title">

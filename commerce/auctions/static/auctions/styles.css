@@ -1,254 +1,278 @@
-    body {
-        background-color: rgb(237, 237, 237);
-    }
-    
-    .container h2 b {
-        color: rgb(25, 76, 185);
-    }
-    
-    .index {
-        display: flex;
-    }
-    
-    .p-1 input {
-        position: absolute;
-        bottom: 0;
-        left: 1rem;
-    }
-    
-    .p-1 a {
-        position: absolute;
-        bottom: 0.2rem;
-        left: 12rem;
-    }
-    
-    .p-1 a button {
-        padding: 0.4rem;
-    }
-    
-    .p #is_authenticated {
-        margin: 2vw;
-    }
-    
-    s .nav {
-        margin: 2vw;
-    }
-    
-    #images {
-        padding: 10px;
-        margin: 10px;
-        border: 2px dotted red;
-        width: 80%;
-        margin-left: 0;
-    }
-    
-    .card {
-        margin: 1vw;
-        box-shadow: 0 0 2px 2px grey;
-    }
-    
-    .index .container {
-        height: 20rem;
-        object-fit: fill;
-        object-position: center;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        padding: 1vw;
-    }
-    
-    .index .container img {
-        width: auto;
-        object-fit: fill;
-        height: 100%;
-        margin: auto;
-        padding: 2vw;
-        ;
-    }
-    
-    p {
-        padding: 0;
-        margin: 0;
-    }
-    
-    .card-footer {
-        border: none;
-        background-color: rgba(255, 255, 255, 0);
-        ;
-    }
-    
-    .card-link:hover {
-        background-color: rgb(187, 155, 12);
-        color: green;
-    }
-    
-    .time {
-        color: grey;
-        margin-top: 2vh;
-        margin-bottom: 8vh;
-        font-size: small;
-        font-style: italic;
-    }
-    
-    img {
-        margin: 2vw;
-    }
-    
-    .white {}
-    
-    .bid {
-        margin-left: -5px;
-        margin-bottom: 5px;
-        padding: 10px;
-        font-weight: bold;
-        background-color: rgb(237, 237, 237);
-        border: 1px solid rgb(237, 237, 237);
-        border-radius: 25px;
-    }
-    
-    .message {
-        color: red;
-    }
-    
-    .comment_field {
-        width: 100%;
-        padding: 0 0 200px 0;
-    }
-    
-    .list_comment {
-        border: 1px solid black;
-        margin-left: -2vw;
-        margin-top: 0.5vh;
-    }
-    
-    .no_image {
-        width: 90%;
-    }
-    
-    .blue {
-        color: rgb(25, 76, 185);
-    }
-    
-    .view img {
-        float: left;
-    }
-    
-    .comment_container {
-        border: 1px solid grey;
-        margin: 10px;
-    }
-    
-    .comment {
-        background-color: azure;
-    }
-    
-    .list-unstyled {
-        margin: 20px;
-    }
-    
-    .small {
-        color: grey;
-        font-size: small;
-    }
-    
-    .space {
-        margin: 10px;
-    }
-    
-    .bid_form_container {
-        display: inline;
-    }
-    
-    .bid_form_container h3 {
-        text-align: left;
-        margin: 20px;
-    }
-    
-    .bid_form_container h6 {
-        text-align: bottom;
-        margin-top: 90%;
-    }
-    
-    .bid_form_container .bid {
-        margin-top: 2vh;
-        margin-left: 1vw;
-        padding: 20px;
-        border-radius: 2vw;
-    }
-    
-    .view_info {
-        display: inline;
-    }
-    
-    .list-unstyled form {
-        margin: 10px;
-        padding: 10px;
-        position: absolute;
-        right: 0;
-    }
-    
-    .close {
-        display: inline;
-        position: absolute;
-        bottom: 0px;
-        right: 0rem;
-        margin-right: 2rem;
-        margin-bottom: 0.2rem;
-    }
-    
-    .unwatch {
-        display: inline;
-        position: absolute;
-        bottom: 0px;
-        left: 2rem;
-        padding: 0.4rem;
-        margin-right: 2rem;
-        margin-bottom: 0.2rem;
-    }
-    
-    .watch {
-        display: inline;
-        position: absolute;
-        bottom: 0px;
-        left: 4.2rem;
-        padding: 0.4rem;
-        margin-right: 2rem;
-        margin-bottom: 0.2rem;
-    }
-    
-    .watch2 {
-        display: inline;
-        position: absolute;
-        bottom: 0px;
-        right: 0rem;
-        margin-right: 2rem;
-        margin-bottom: 0.2rem;
-    }
-    
-    .unwatch2 {
-        display: inline;
-        position: absolute;
-        bottom: 0px;
-        right: 0rem;
-        margin-right: 2rem;
-        margin-bottom: 0.2rem;
-    }
-    
-    .categories {
-        background-color: white;
-        border: 1px solid white;
-        border-radius: 18px;
-        object-fit: contain;
-    }
-    
-    .categories .row {
-        margin: 1rem;
-    }
-    
-    .alert {
-        object-fit: contain;
-        padding: 20px;
-        width: 95%;
-        margin: auto;
-    }
+html,
+body {
+    /* From https://coolbackgrounds.io/ */
+    background-image: url('cool-background.png')
+}
+
+h1 {
+    font-weight: bolder;
+    margin: 20px;
+    color: black;
+}
+
+#is_authenticated {
+    margin: 20px;
+    color: black;
+}
+
+.nav {
+    list-style: none;
+    font-weight: bold;
+    margin-bottom: 0;
+    width: 120vw;
+    text-align: center;
+    height: 40px;
+    background-color: rgb(108, 240, 227);
+}
+
+h2 {
+    margin: 20px;
+}
+
+h2 b {
+    color: rgb(25, 76, 185);
+    padding: 10vw;
+}
+
+.index {
+    display: flex;
+}
+
+.index .container {
+    height: 20rem;
+    width: auto;
+    object-fit: fill;
+    object-position: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.index .container img {
+    width: auto;
+    object-fit: fill;
+    height: 100%;
+    margin: auto;
+    padding: 2vw;
+}
+
+.card {
+    margin: 1vw;
+    box-shadow: 0 0 2px 2px rgb(102, 102, 102);
+}
+
+.container h3 {
+    margin-top: 20px;
+}
+
+.p-1 input {
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+}
+
+.p-1 a {
+    position: absolute;
+    bottom: 0.2rem;
+    left: 12rem;
+}
+
+.p-1 a button {
+    padding: 0.4rem;
+}
+
+#images {
+    padding: 10px;
+    margin: 10px;
+    border: 2px dotted red;
+    width: 80%;
+    margin-left: 0;
+}
+
+.card-footer {
+    border: none;
+    background-color: rgba(255, 255, 255, 0);
+    ;
+}
+
+.card-link:hover {
+    background-color: rgb(187, 155, 12);
+    color: green;
+}
+
+.time {
+    color: grey;
+    margin-top: 2vh;
+    margin-bottom: 8vh;
+    font-size: small;
+    font-style: italic;
+}
+
+img {
+    margin: 2vw;
+}
+
+.col-8 ul {
+    margin: 20px;
+    padding: 1px;
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 5px;
+    background-color: rgb(237, 237, 237);
+}
+
+.bid {
+    margin-left: -5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    font-weight: bold;
+    background-color: rgb(237, 237, 237);
+    border: 1px solid rgb(237, 237, 237);
+    border-radius: 25px;
+}
+
+.message {
+    color: red;
+}
+
+.comment_field {
+    width: 100%;
+    padding: 0 0 200px 0;
+}
+
+.list_comment {
+    border: 1px solid black;
+    margin-left: -2vw;
+    margin-top: 0.5vh;
+}
+
+.no_image {
+    width: 90%;
+}
+
+.blue {
+    color: rgb(25, 76, 185);
+}
+
+.view img {
+    float: left;
+}
+
+.comment_container {
+    border: 1px solid grey;
+    margin: 10px;
+}
+
+.comment {
+    background-color: azure;
+}
+
+.list-unstyled {
+    margin: 20px;
+}
+
+.small {
+    color: grey;
+    font-size: small;
+}
+
+.space {
+    margin: 10px;
+}
+
+.bid_form_container {
+    display: inline;
+}
+
+.bid_form_container h3 {
+    text-align: left;
+    margin: 20px;
+}
+
+.bid_form_container h6 {
+    text-align: bottom;
+    margin-top: 90%;
+}
+
+.bid_form_container .bid {
+    margin-top: 2vh;
+    margin-left: 1vw;
+    padding: 20px;
+    border-radius: 2vw;
+}
+
+.view_info {
+    display: inline;
+}
+
+.list-unstyled form {
+    margin: 10px;
+    padding: 10px;
+    position: absolute;
+    right: 0;
+}
+
+.close {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.unwatch {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    left: 2rem;
+    padding: 0.4rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.watch {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    left: 4.2rem;
+    padding: 0.4rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.watch2 {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.unwatch2 {
+    display: inline;
+    position: absolute;
+    bottom: 0px;
+    right: 0rem;
+    margin-right: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.categories {
+    background-color: white;
+    border: 1px solid white;
+    border-radius: 18px;
+    object-fit: contain;
+}
+
+.categories .row {
+    margin: 1rem;
+}
+
+.alert {
+    object-fit: contain;
+    padding: 20px;
+    width: 95%;
+    margin: auto;
+}

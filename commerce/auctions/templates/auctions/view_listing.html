@@ -1,5 +1,9 @@
 {% extends "auctions/layout.html" %}
 
+{% block title %}
+    View Listing
+{% endblock %}
+
 {% block body %}
     {% if message %}
         <div class="alert alert-info" role="alert">
@@ -15,7 +19,7 @@
         </div>
     {% endif %}
     <div class="row">
-        <div class="col-8">
+        <div class="col-12">
             <div class="card">
                 <div class="row">
                     <div class="col-4">
@@ -137,47 +141,47 @@
                 </div>
             </div>
         </div>
-        {% if request.user.is_authenticated %}
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body">
-                        <form action="{% url 'view' listing.id %}" method="POST">
-                            {% csrf_token %}
-                            <h3>Leave a comment:</h3>
-                            {% load widget_tweaks %}
-                            {% render_field comment_form.comment class="comment_field" %}
-                            <br>
-                            <br>
-                            <input type="submit" name="leave_comment" class="btn btn-success" value="Submit">
-                        </form>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
     </div>
     <div class="row">
-        <div class="col-8">
+        <div class="col-12">
             <div class="card">
-                <div class="card-body">
-                    <h2>Comments</h2>
-                    <br>
-                    <ul>
-                        {% if not comments %}
-                            <div class="card-text">
-                                <h4><b>0 Comments</b></h4>
-                            </div>
-                        {% else %}
-                            {% for comment in comments %}
-                                <div class="card comment">
-                                    <div class="card-body">
-                                        <blockquote mb-0>
-                                            <p>{{ comment.comment }}</p>                           
-                                            <br>
-                                            <footer class="blockquote-footer"><cite title="Source Title">{{ comment.user.username }}</cite></footer>
-                                        </blockquote>
-                                    </div>
+                <div class="row">
+                    <div class="col-4">
+                        {% if request.user.is_authenticated %}
+                            <div class="card-body">
+                                <div class="container">
+                                    <form action="{% url 'view' listing.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <h3>Leave a comment:</h3>
+                                        {% load widget_tweaks %}
+                                        {% render_field comment_form.comment class="comment_field" %}
+                                        <br>
+                                        <br>
+                                        <input type="submit" name="leave_comment" class="btn btn-success" value="Submit">
+                                    </form>
                                 </div>
-                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-8">
+                        <h2>Comments</h2>
+                        <ul class="container-flex">
+                            {% if not comments %}
+                                <div class="card-text">
+                                    <h4><b>0 Comments</b></h4>
+                                </div>
+                            {% else %}
+                                {% for comment in comments %}
+                                    <div class="card comment">
+                                        <div class="card-body">
+                                            <blockquote mb-0>
+                                                <p>{{ comment.comment }}</p>                           
+                                                <br>
+                                                <footer class="blockquote-footer"><cite title="Source Title">{{ comment.user.username }}</cite></footer>
+                                            </blockquote>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                         {% endif %}
                     </ul>
                 </div>
