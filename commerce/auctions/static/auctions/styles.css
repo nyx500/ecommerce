@@ -7,31 +7,40 @@ body {
 h1 {
     font-weight: bolder;
     margin: 20px;
-    color: black;
+    color: navy;
 }
 
 #is_authenticated {
     margin: 20px;
-    color: black;
+    color: navy;
 }
 
 .navbar {
+    background-image: url('salt.png');
     list-style: none;
     font-weight: bold;
     margin-bottom: 0;
     width: 120%;
-    background-color: thistle;
     justify-content: start;
     overflow: auto;
 }
 
+.nav-link {
+    color: rgb(212, 176, 162);
+    ;
+}
+
 h2 {
     margin: 20px;
+    color: navy;
 }
 
 h2 b {
-    color: rgb(25, 76, 185);
-    padding: 10vw;
+    color: orangered;
+}
+
+h4 {
+    color: navy;
 }
 
 .index {
@@ -102,20 +111,31 @@ h2 b {
     margin-left: -50px;
 }
 
+.list-group-horizontal {
+    display: inline-block;
+    border: none;
+    margin-top: 50px;
+}
+
+.list-group-horizontal .closebutton {
+    position: absolute;
+    left: 5;
+    bottom: 0;
+    border: none;
+}
+
+.list-group-horizontal .watchbutton {
+    position: absolute;
+    right: 10;
+    bottom: 0;
+    border: none;
+}
+
 .card-footer {
     border: none;
     background-color: rgba(255, 255, 255, 0);
     ;
     display: inline;
-    position: flex;
-    bottom: 1rem;
-}
-
-.close-bid {
-    margin-left: 0%!important;
-    bottom: 2.8rem;
-    position: absolute;
-    right: 2rem;
 }
 
 img {
@@ -125,9 +145,9 @@ img {
 .col-8 ul {
     margin: 20px;
     padding: 1px;
-    border: 1px solid rgb(200, 200, 200);
+    border: 1px solid lightcoral;
     border-radius: 5px;
-    background-color: rgb(237, 237, 237);
+    background-color: lightcoral;
 }
 
 .bid {
@@ -137,14 +157,18 @@ img {
     margin-bottom: 5px;
     padding: 10px;
     font-weight: bold;
-    background-color: rgb(237, 237, 237);
-    border: 1px solid rgb(237, 237, 237);
+    background-color: lightcoral;
+    border: 1px solid lightcoral;
     border-radius: 25px;
 }
 
 .comment_field {
     width: 100%;
     padding: 0 0 200px 0;
+}
+
+.card-body .container form h3 {
+    color: navy;
 }
 
 .blue {
@@ -179,6 +203,8 @@ img {
     margin-right: 2rem;
     margin-bottom: 0.2rem;
 }
+
+.container-flex .card-text {}
 
 .categories {
     background-color: white;

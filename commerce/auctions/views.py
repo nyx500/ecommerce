@@ -238,8 +238,6 @@ def view_listing(request, id):
             
             if form.is_valid():
                 amount = form.cleaned_data["amount_bid"]
-                og_amount = request.POST["og_amount"]
-                og_currency = request.POST["og_currency"]
                 amount = convert_money(amount.amount, amount.currency, listing.starting_bid.currency)
                 if listing.minimum_bid is None:
                     strt_bid = listing.starting_bid
@@ -248,7 +246,7 @@ def view_listing(request, id):
 
                 # Logic for if the amount bid fails to meet the minimum bidding amount
                 if amount < strt_bid:
-                    error = f"Error: Please match the starting/minimum bid of {strt_bid}"
+                    error = f"Please match the starting/minimum bid of {strt_bid}"
                     return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), "error": error, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
