@@ -7,9 +7,7 @@ from django.urls import reverse
 from .models import *
 import datetime
 import pytz
-from djmoney_rates.utils import convert_money
 from decimal import Decimal
-from django_prices_openexchangerates.tasks import extract_rate, get_latest_exchange_rates, update_conversion_rates
 from .forms import *
 from .functions import *
 
@@ -163,6 +161,7 @@ def register(request):
 
 def view_listing(request, id):
 
+    is_active()
     # Gets the listing as a list of one item and calculates how long ago the listing was created
     listing = Listing.objects.filter(id=id)
     when_created(listing)
@@ -189,7 +188,6 @@ def view_listing(request, id):
 
         # Logic for if the user clicked on the form to add an item to their watchlist
         if 'watch' in request.POST:
-            watchers = listing.user_set.all()
             request.user.watched_listings.add(listing)
             request.user.save()
             message = "You have added this listing to your watchlist!"
@@ -229,6 +227,7 @@ def view_listing(request, id):
         elif 'off' in request.POST:
             listing.end_bid_time = datetime.datetime.now(pytz.utc)
             listing.save()
+            is_active()
             return HttpResponseRedirect(reverse('index'))
 
         # Logic for all bidding possibilities
@@ -238,7 +237,6 @@ def view_listing(request, id):
             
             if form.is_valid():
                 amount = form.cleaned_data["amount_bid"]
-                amount = convert_money(amount.amount, amount.currency, listing.starting_bid.currency)
                 if listing.minimum_bid is None:
                     strt_bid = listing.starting_bid
                 else:
@@ -246,7 +244,7 @@ def view_listing(request, id):
 
                 # Logic for if the amount bid fails to meet the minimum bidding amount
                 if amount < strt_bid:
-                    error = f"Please match the starting/minimum bid of {strt_bid}"
+                    error = f"Please match the starting/minimum bid of ${strt_bid}"
                     return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), "error": error, "winner": winner, "comment_form": CommentForm(), "comments": comments
                         })
@@ -280,7 +278,7 @@ def view_listing(request, id):
                         listing.minimum_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25) * listing.increment)
                         listing.save()
 
-                        message = f"Sorry! Unfortunately your bid of {amount} was lower than or equal to the highest bid of {highest_bid.amount_bid} placed by {highest_bid.bidder.username}. {listing.current_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
+                        message = f"Sorry! Unfortunately your bid of ${amount} was lower than or equal to the highest bid of ${highest_bid.amount_bid} placed by {highest_bid.bidder.username}. ${listing.current_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
                        
                         return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), "message": message, "winner": winner, "comment_form": CommentForm(), "comments": comments
@@ -306,7 +304,7 @@ def view_listing(request, id):
                         listing.current_bid = Bid.objects.all().order_by('-time_bid')[0].amount_bid 
                         listing.save()
 
-                        message = f"Thank you for your bid of {amount} on Listing #{listing.id} {listing.name}! Your bid has been successful!"
+                        message = f"Thank you for your bid of ${amount} on Listing #{listing.id} {listing.name}! Your bid has been successful!"
                         return render(request, "auctions/view_listing.html", {
                             "listing":listing, "form": BidForm(), 
                             "message": message, "winner": winner, "comment_form": CommentForm(), "comments": comments
@@ -315,6 +313,9 @@ def view_listing(request, id):
                     # Logic if the user's bid manages to beat all the previous bids
                     else:
                         listing.increment += 1
+                        listing.current_bid = listing.highest_bid + (listing.starting_bid * (Decimal(0.25) * Decimal(listing.increment)))
+                        listing.highest_bid = amount
+                        listing.minimum_bid = listing.current_bid + (listing.starting_bid * (Decimal(0.25) * Decimal(listing.increment)))
                         listing.save()
 
                         obj = Bid()
@@ -323,21 +324,14 @@ def view_listing(request, id):
                         obj.amount_bid = amount
                         obj.save()
 
-                        obj2 = Bid()
-                        obj2.bidder = request.user
-                        obj2.listing = listing
-                        # Creates a new minimum bid amount equal to adding another quarter of the starting price (by increment) to the previous highest bid amount
-                        obj2.amount_bid.amount = listing.highest_bid.amount + (listing.starting_bid.amount * (Decimal(0.25) * Decimal(listing.increment)))
+                        if listing.highest_bid > listing.minimum_bid:
+                            obj2 = Bid()
+                            obj2.bidder = request.user
+                            obj2.listing = listing
+                            obj2.amount_bid = listing.current_bid
+                            obj2.save()
 
-                        obj2.amount_bid.currency = listing.highest_bid.currency
-                        obj2.save()
-
-                        listing.current_bid = Bid.objects.all().order_by('-time_bid')[0].amount_bid
-                        listing.minimum_bid.amount = listing.current_bid.amount + (Decimal(0.25) * Decimal(listing.increment))
-                        listing.highest_bid = amount
-                        listing.save()
-
-                        message = f"Thank you for your bid of {amount} on Listing #{listing.id} {listing.name}! Your bid has been successful!"
+                        message = f"Thank you for your bid of ${amount} on Listing #{listing.id} {listing.name}! Your bid has been successful!"
                         return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), 
                             "message": message, "winner": winner, "comment_form": CommentForm(), "comments": comments

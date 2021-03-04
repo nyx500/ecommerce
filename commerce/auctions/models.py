@@ -6,6 +6,7 @@ from timezone_field import TimeZoneField
 from django_countries.fields import CountryField
 from django_countries import countries
 from djmoney.models.fields import MoneyField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class User(AbstractUser):
     time_created = models.DateTimeField(auto_now_add=True)
@@ -50,10 +51,10 @@ class Listing(models.Model):
     name = models.CharField(max_length=128, verbose_name="Product name:")
     description = models.CharField(max_length=255, verbose_name="Product description:", blank=True, null=True)
     condition = models.CharField(max_length=64, verbose_name="Product condition:", choices = CONDITION_CHOICES)
-    starting_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=00.00, verbose_name="Starting bid:")
-    minimum_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Minimum bid:", null=True, blank=True)
-    highest_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Highest bid:", blank=True, null=True)
-    current_bid = MoneyField(max_digits=19, decimal_places=2, default_currency='USD', default=None, verbose_name="Current bid:", blank=True, null=True)
+    starting_bid = models.DecimalField(decimal_places=2, max_digits=30, validators=[MinValueValidator(0)], verbose_name="Starting bid in US $:")
+    minimum_bid = models.DecimalField(decimal_places=2, max_digits=30, validators=[MinValueValidator(0)], verbose_name="Minimum bid:", default=None, blank=True, null=True)
+    highest_bid = models.DecimalField(decimal_places=2, max_digits=30, validators=[MinValueValidator(0)], verbose_name="Highest bid:", default=None, blank=True, null=True)
+    current_bid = models.DecimalField(decimal_places=2, max_digits=30, validators=[MinValueValidator(0)], verbose_name="Current bid:", default=None, blank=True, null=True)
     category = models.CharField(max_length=128, verbose_name="Category:", choices = CATEGORY_CHOICES)
     
     # Creates a custom image path for each user via their id. The join function creates a path that links the media folder in the root directory to the user id in that 'instance' (current object) and saves it as the filename the user has uploaded
@@ -80,7 +81,7 @@ class Listing(models.Model):
 
     location = CountryField(verbose_name="Country the product is being sent from:")
     shipping_options = models.CharField(max_length=64, verbose_name="Ships to:", choices=COUNTRY_CHOICES)
-    shipping_cost = MoneyField(max_digits=19, decimal_places=2, default=00.00, default_currency="USD", verbose_name="Shipping cost:")
+    shipping_cost = models.DecimalField(decimal_places=2, max_digits=30, validators=[MinValueValidator(0)], verbose_name="Shipping cost in US $:")
     time_listed = models.DateTimeField(auto_now_add=True)
     time_difference = models.DurationField(blank=True, null=True)
     start_bid_time = models.DateTimeField(verbose_name="Enter start date and time:")
@@ -96,7 +97,7 @@ class Listing(models.Model):
 class Bid(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
-    amount_bid = MoneyField(max_digits=19, decimal_places=2, default=00.00, default_currency="USD")
+    amount_bid = models.DecimalField(decimal_places=2, max_digits=30, validators=[MinValueValidator(0)], verbose_name="Place bid in US $:")
     time_bid = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

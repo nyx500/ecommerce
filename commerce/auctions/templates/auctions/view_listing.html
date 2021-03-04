@@ -46,22 +46,22 @@
                                 <li>
                                     <p>
                                         {% if listing.minimum_bid  %}
-                                            Minimum Bid: <b class="blue">{{ listing.minimum_bid }}</b>
+                                            Minimum Bid: <b class="blue">${{ listing.minimum_bid }}</b>
                                         {% endif %}
                                     </p>
                                 </li>
                                 <li>
                                     <p>
                                     {% if listing.current_bid %}
-                                        Current Bid: <b class="blue">{{ listing.current_bid }}</b>
+                                        Current Bid: <b class="blue">${{ listing.current_bid }}</b>
                                     {% else %}
                                         Current Price: <b class="blue">No bids</b>
                                     {% endif %}
                                     </p>
                                 </li>
-                                <li>Starting Price: {{ listing.starting_bid }}</p></li>
+                                <li>Starting Price: ${{ listing.starting_bid }}</p></li>
                                 <li><p>Ships to: {{ listing.shipping_options }}</p></li>
-                                <li><p>Shipping cost: {{ listing.shipping_cost }}</p></li>
+                                <li><p>Shipping cost: ${{ listing.shipping_cost }}</p></li>
                                 <li>
                                     <p class="small"><em> 
                                         {% load mathfilters %}
@@ -87,7 +87,7 @@
                                 <li>
                                     <ul class="list-unstyled list-group list-group-horizontal">
                                         {% if request.user.is_authenticated %}
-                                            {% if request.user == listing.seller %}
+                                            {% if request.user == listing.seller and listing.bid_active == True %}
                                                 <li class="list-group-item closebutton">
                                                     <form class="close-bid" action="{% url "view" listing.id %}" method="POST">
                                                         {% csrf_token %}
@@ -130,13 +130,14 @@
                                         <li>
                                             <form class="bid" action="{% url "view" listing.id %}" method="POST">
                                                 {% csrf_token %}
-                                                {{ form.amount_bid.label }} in <b class="blue">{{ listing.starting_bid.currency }}:</b>
+                                                {{ form.amount_bid.label }}
                                                 {{ form.amount_bid }}
                                                 <input type="hidden" name="listing_id" value="{{ listing.id }}">
                                                 {% if listing.minimum_bid.amount is None %}
                                                     <input type="hidden" name="start_bid" value="{{ listing.starting_bid }}">
                                                 {% else %}
-                                                    <input type="hidden" name="start_bid" value="{{ listing.minimum_bid }}">
+                                                    {% load mathfilters %}
+                                                    <input type="hidden" name="start_bid" value="{{ listing.minimum_bid|floatformat:2 }}">
                                                 {% endif %}
                                                 <input type="submit" name="bid" class="btn btn-primary" value="Place Bid">
                                             </form>

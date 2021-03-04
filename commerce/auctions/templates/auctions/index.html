@@ -35,13 +35,13 @@
                                 {% if listing.minimum_bid == None %}
                                     <b>Current price: </b><b class="blue">No bids made yet</b>
                                 {% else %}
-                                    <b>Current price: </b><b class="blue">{{ listing.current_bid }}</b>
+                                    <b>Current price: </b><b class="blue">${{ listing.current_bid }}</b>
                                 {% endif %}
                                 <br>
-                                <b>Starting price: {{ listing.starting_bid }}</b>
+                                <b>Starting price: ${{ listing.starting_bid }}</b>
                             </p>
                             <p class="card-text">
-                                {{ listing.shipping_cost }} shipping
+                                ${{ listing.shipping_cost }} shipping
                             </p>
                             <p class="card-text time"> 
                                 {% load mathfilters %}
