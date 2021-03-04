@@ -58,6 +58,11 @@
                             </p>
                             <div class="d-flex justify-content-start">
                                 <div class="p-1">
+                                    <a href="{% url 'view' listing.id %}">
+                                        <button class="btn btn-warning"><b>View Listing</b></button>
+                                    </a>
+                                </div>
+                                <div class="p-1">
                                     {% if request.user.is_authenticated %}
                                         {% if cat == True %}
                                             {% if request.user in listing.user_set.all %}
@@ -103,11 +108,6 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
-                                </div>
-                                <div class="p-1">
-                                    <a href="{% url 'view' listing.id %}">
-                                        <button class="btn btn-warning"><b>View Listing</b></button>
-                                    </a>
                                 </div>
                             </div>
                         </div>

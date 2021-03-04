@@ -5,16 +5,18 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container categories">
-        <div class="row">
-            <h3>Existing Categories</h3>
-        </div>
-        <div class="row">
-            <ul>
-                {% for listing in listings %}
-                    <li><a href="{% url 'index' cat_name=listing.category %}">{{ listing.category }}</a></li>
-                {% endfor %}
-            </ul>
+    <div class="card">
+        <div class="container categories">
+            <div class="row">
+                <h3>Existing Categories</h3>
+            </div>
+            <div class="row">
+                <ul>
+                    {% for listing in listings %}
+                        <li><a href="{% url 'index' cat_name=listing.category %}">{{ listing.category }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 {% endblock %}
