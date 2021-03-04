@@ -6,13 +6,19 @@ body {
 
 h1 {
     font-weight: bolder;
-    margin: 20px;
+    margin: 0;
     color: navy;
 }
 
 #is_authenticated {
-    margin: 20px;
+    margin-left: 20px;
+    margin: 5px;
     color: navy;
+}
+
+.list-inline {
+    height: 180px;
+    margin-bottom: 40px;
 }
 
 .navbar {
