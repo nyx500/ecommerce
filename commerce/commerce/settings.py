@@ -12,17 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 from pathlib import Path
 import os
-from openexchangerates import OpenExchangeRatesClient
-
-OPENEXCHANGERATES_API_KEY = "58d70ceb1f49488690d4e1d361a8e28f"
-
-OPENEXCHANGE_BASE_CURRENCY = "USD"
-
-client = OpenExchangeRatesClient('58d70ceb1f49488690d4e1d361a8e28f')
-currencies = client.currencies()
-currencies = [(k, v) for k, v in currencies.items() ]
-currencies.insert(0, (None, '----------'))
-CURRENCY_CHOICES = currencies
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,11 +41,9 @@ DATE_INPUT_FORMATS = [
 INSTALLED_APPS = [
     'crispy_forms',
     'mathfilters',
-    'django_prices_openexchangerates',
-    'djmoney_rates',
-    'django_prices',
     'django_countries',
-    'djmoney',
+    'pytz',
+    'widget_tweaks',
     'auctions',
     'bootstrap4',
     'bootstrap_datepicker_plus',
@@ -67,8 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.utils',
-    'pytz',
-    'widget_tweaks'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

@@ -5,7 +5,6 @@ import os
 from timezone_field import TimeZoneField
 from django_countries.fields import CountryField
 from django_countries import countries
-from djmoney.models.fields import MoneyField
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class User(AbstractUser):
