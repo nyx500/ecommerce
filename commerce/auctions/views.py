@@ -278,7 +278,7 @@ def view_listing(request, id):
                         listing.minimum_bid = listing.minimum_bid + (listing.starting_bid * Decimal(0.25) * listing.increment)
                         listing.save()
 
-                        message = f"Sorry! Unfortunately your bid of ${amount} was lower than or equal to the highest bid of ${highest_bid.amount_bid} placed by {highest_bid.bidder.username}. ${listing.current_bid} has automatically been bid to {highest_bid.bidder.username}. Please try again!"
+                        message = f"Sorry! Unfortunately, your bid of ${amount} was lower than or equal to the maximum bid. Please try again!"
                        
                         return render(request, "auctions/view_listing.html", {
                             "listing": listing, "form": BidForm(), "message": message, "winner": winner, "comment_form": CommentForm(), "comments": comments
