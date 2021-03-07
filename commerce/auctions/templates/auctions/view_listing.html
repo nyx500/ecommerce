@@ -44,24 +44,25 @@
                                 </li>
                                 <li><p><em>Product Description: {{ listing.description }}</em></p></li>
                                 <li>
+                                    {% load mathfilters %}
                                     <p>
                                         {% if listing.minimum_bid  %}
-                                            Minimum Bid: <b class="blue">${{ listing.minimum_bid }}</b>
+                                            Minimum Bid: <b class="blue">${{ listing.minimum_bid|floatformat:2 }}</b>
                                         {% endif %}
                                     </p>
                                 </li>
                                 <li>
                                     <p>
                                     {% if listing.current_bid %}
-                                        Current Bid: <b class="blue">${{ listing.current_bid }}</b>
+                                        Current Bid: <b class="blue">${{ listing.current_bid|floatformat:2 }}</b>
                                     {% else %}
                                         Current Price: <b class="blue">No bids</b>
                                     {% endif %}
                                     </p>
                                 </li>
-                                <li>Starting Price: ${{ listing.starting_bid }}</p></li>
+                                <li>Starting Price: ${{ listing.starting_bid|floatformat:2 }}</p></li>
                                 <li><p>Ships to: {{ listing.shipping_options }}</p></li>
-                                <li><p>Shipping cost: ${{ listing.shipping_cost }}</p></li>
+                                <li><p>Shipping cost: ${{ listing.shipping_cost|floatformat:2 }}</p></li>
                                 <li>
                                     <p class="small"><em> 
                                         {% load mathfilters %}
