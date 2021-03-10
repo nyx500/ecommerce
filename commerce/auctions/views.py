@@ -182,7 +182,7 @@ def view_listing(request, id):
         if request.user == highest_bidder:
             # Checks if the bid is open or closed
             if listing.bid_active == False:
-                winner = f"You have won this bid at {Bid.objects.filter(bidder=highest_bidder).order_by('-time_bid')[0].amount_bid}!"
+                winner = f"You have won this bid at ${Bid.objects.filter(bidder=highest_bidder).order_by('-time_bid')[0].amount_bid}!"
 
     if request.method == "POST":
 
