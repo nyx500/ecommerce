@@ -27,18 +27,18 @@
                             </h5>
                             <h6 class="card-subtitle mb-2 text-muted">
                                 Product condition: {{ listing.condition }}
+                                <br>
+                                Seller: {{ listing.seller.username }}
                             </h6>
                             <p class="card-text">
                                 {{ listing.description }}
                             </p>
                             <p class="card-text">
                                 {% if listing.minimum_bid == None %}
-                                    <b>Current price: </b><b class="blue">No bids made yet</b>
+                                    <b>Current price/bid: </b><b class="blue">${{ listing.starting_bid }}</b>
                                 {% else %}
-                                    <b>Current price: </b><b class="blue">${{ listing.current_bid }}</b>
+                                    <b>Current price/bid: </b><b class="blue">${{ listing.current_bid }}</b>
                                 {% endif %}
-                                <br>
-                                <b>Starting price: ${{ listing.starting_bid }}</b>
                             </p>
                             <p class="card-text">
                                 ${{ listing.shipping_cost }} shipping
